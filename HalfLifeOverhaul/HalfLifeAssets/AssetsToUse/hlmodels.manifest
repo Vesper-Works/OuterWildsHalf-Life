@@ -1,0 +1,186 @@
+ManifestFileVersion: 0
+CRC: 166470177
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: db708117e54e14c92104db6bc243af1f
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: db59cb376d8c5d2b289f57e3f739454e
+HashAppended: 0
+ClassTypes:
+- Class: 1
+  Script: {instanceID: 0}
+- Class: 4
+  Script: {instanceID: 0}
+- Class: 21
+  Script: {instanceID: 0}
+- Class: 28
+  Script: {instanceID: 0}
+- Class: 43
+  Script: {instanceID: 0}
+- Class: 48
+  Script: {instanceID: 0}
+- Class: 74
+  Script: {instanceID: 0}
+- Class: 91
+  Script: {instanceID: 0}
+- Class: 95
+  Script: {instanceID: 0}
+- Class: 137
+  Script: {instanceID: 0}
+- Class: 319
+  Script: {instanceID: 0}
+SerializeReferenceClassIdentifiers: []
+Assets:
+- Assets/Materials/vortiguant/Mouth1.mat
+- Assets/Materials/vortiguant/Chrome_1.mat
+- Assets/crystal.fbx
+- Assets/Materials/scientist/DM_Face.mat
+- Assets/Materials/vortiguant/Side1.mat
+- Assets/Materials/vortiguant/B-Small_Arm1.mat
+- Assets/Materials/icky/mouth.mat
+- Assets/Materials/icky/leftarm.bmp
+- Assets/Prefabs/HEV_suit.prefab
+- Assets/Materials/vortiguant/Leg_Out1.bmp
+- Assets/Materials/nihilanth/handback.mat
+- Assets/Materials/headcrab/transparent section.bmp
+- Assets/Prefabs/tau_cannon.prefab
+- Assets/Materials/vortiguant/Chest1.bmp
+- Assets/Materials/tau_cannon/rubbertube.bmp
+- Assets/Materials/vortiguant/Mouth1.bmp
+- Assets/Materials/vortiguant/Heel1.bmp
+- Assets/Prefabs/nihilanth.prefab
+- Assets/Materials/nihilanth/C_InHead_Base1.bmp
+- Assets/VortiguantAnimatorController.controller
+- Assets/Materials/scientist/DM_Face.bmp
+- Assets/Materials/tau_cannon/rubbertube.mat
+- Assets/Materials/nihilanth/arm.bmp
+- Assets/Materials/icky/belly.mat
+- Assets/Materials/icky/Rightarm.mat
+- Assets/Materials/vortiguant/Eye1.bmp
+- Assets/Materials/nihilanth/centerarm.mat
+- Assets/Materials/HEV_suit/front.bmp
+- Assets/Materials/nihilanth/front_torso.mat
+- Assets/Materials/tau_cannon/stock.bmp
+- Assets/UpperBody.mask
+- Assets/Materials/headcrab/butt.mat
+- Assets/Materials/nihilanth/forehead.mat
+- Assets/Materials/vortiguant/Sml_Arm_Fnt1.bmp
+- Assets/headcrab.fbx
+- Assets/Materials/nihilanth/forehead.bmp
+- Assets/Materials/vortiguant/Hand_Side1.bmp
+- Assets/Materials/vortiguant/Chrome_1.bmp
+- Assets/Materials/icky/chrome_tooth.bmp
+- Assets/Materials/icky/chrome_tooth.mat
+- Assets/Materials/vortiguant/B-Small_Arm1.bmp
+- Assets/Materials/icky/rearquarterpanel.bmp
+- Assets/Materials/vortiguant/Out-Arm1.mat
+- Assets/Materials/nihilanth/torso(side).mat
+- Assets/Materials/crystal/side.bmp
+- Assets/Materials/icky/rearquarterpanel.mat
+- Assets/Materials/vortiguant/Head_Top1.bmp
+- Assets/Materials/tau_cannon/body_side.mat
+- Assets/Materials/nihilanth/centerarm.bmp
+- Assets/Materials/icky/belly.bmp
+- Assets/Materials/icky/Headmap.bmp
+- Assets/Materials/nihilanth/front_torso.bmp
+- Assets/Materials/vortiguant/Palm1.mat
+- Assets/Materials/icky/back_eye.bmp
+- Assets/Materials/vortiguant/Pelvis_Fnt.bmp
+- Assets/Materials/vortiguant/Back1.bmp
+- Assets/IckyAnimationController.controller
+- Assets/Materials/tau_cannon/barrelCHROME.mat
+- Assets/Materials/icky/mouth.bmp
+- Assets/Materials/tau_cannon/stock.mat
+- Assets/Prefabs/icky.prefab
+- Assets/NihilanthAnimationController.controller
+- Assets/Materials/vortiguant/Nose1.mat
+- Assets/Materials/headcrab/front.bmp
+- Assets/Materials/vortiguant/FootPrint1.bmp
+- Assets/Materials/vortiguant/Hand_Side1.mat
+- Assets/vorti_run.anim
+- Assets/Materials/headcrab/bottom.bmp
+- Assets/Materials/nihilanth/torso(side).bmp
+- Assets/Materials/headcrab/butt.bmp
+- Assets/Materials/scientist/DM_Base.bmp
+- Assets/Materials/vortiguant/Pelvis_Back1.bmp
+- Assets/Materials/vortiguant/Hand_Top_Sm1.mat
+- Assets/Materials/vortiguant/Nostrils1.bmp
+- Assets/Materials/tau_cannon/bottle.mat
+- Assets/Materials/nihilanth/face2.bmp
+- Assets/Materials/tau_cannon/barrelCHROME.bmp
+- Assets/nihilanth.fbx
+- Assets/Materials/vortiguant/Hand_Top_Sm1.bmp
+- Assets/Materials/nihilanth/leg.mat
+- Assets/Materials/headcrab/lowerside.mat
+- Assets/Materials/vortiguant/Eye1.mat
+- Assets/Materials/vortiguant/Heel1.mat
+- Assets/Materials/vortiguant/In_Arm1.mat
+- Assets/Materials/vortiguant/Leg_Out1.mat
+- Assets/Materials/HEV_suit/back.bmp
+- Assets/Materials/nihilanth/headside.mat
+- Assets/Materials/vortiguant/Jaw_1.bmp
+- Assets/Materials/headcrab/bottom.mat
+- Assets/Materials/tau_cannon/body_rear.bmp
+- Assets/Materials/headcrab/lowerside.bmp
+- Assets/Materials/nihilanth/chrome_nihilanth.mat
+- Assets/vorti_walk.anim
+- Assets/Materials/HEV_suit/front.mat
+- Assets/Materials/nihilanth/handback.bmp
+- Assets/Materials/icky/back_eye.mat
+- Assets/Materials/tau_cannon/body_side.bmp
+- Assets/Materials/vortiguant/Side1.bmp
+- Assets/Materials/scientist/DM_Base.mat
+- Assets/Materials/HEV_suit/PLAYER_Chrome1.bmp
+- Assets/scientist.fbx
+- Assets/vorti_idle.anim
+- Assets/Materials/vortiguant/Hand1.mat
+- Assets/Materials/nihilanth/C_InHead_Base1.mat
+- Assets/HEV_suit.fbx
+- Assets/Materials/icky/leftarm.mat
+- Assets/Materials/nihilanth/headside.bmp
+- Assets/Materials/icky/frontquarterpanel.mat
+- Assets/Materials/tau_cannon/bottle.bmp
+- Assets/Materials/vortiguant/In_Arm1.bmp
+- Assets/Materials/icky/frontquarterpanel.bmp
+- Assets/Materials/vortiguant/Sml_Arm_Fnt1.mat
+- Assets/Materials/vortiguant/Nose1.bmp
+- Assets/Materials/nihilanth/leg.bmp
+- Assets/Materials/vortiguant/Pelvis_Fnt.mat
+- Assets/Materials/nihilanth/back.bmp
+- Assets/Materials/vortiguant/Hip1.bmp
+- Assets/LowerBody.mask
+- Assets/Materials/HEV_suit/back.mat
+- Assets/Materials/icky/Headmap.mat
+- Assets/Prefabs/headcrab.prefab
+- Assets/Materials/vortiguant/Palm1.bmp
+- Assets/Materials/vortiguant/Hand1.bmp
+- Assets/Materials/vortiguant/Shldrs1.bmp
+- Assets/Prefabs/scientist.prefab
+- Assets/Materials/vortiguant/Pelvis_Back1.mat
+- Assets/Materials/nihilanth/back.mat
+- Assets/Prefabs/crystal.prefab
+- Assets/icky.fbx
+- Assets/Materials/nihilanth/arm.mat
+- Assets/Materials/vortiguant/Jaw_1.mat
+- Assets/Materials/vortiguant/Chest1.mat
+- Assets/Materials/tau_cannon/body_rear.mat
+- Assets/Materials/nihilanth/face2.mat
+- Assets/Materials/nihilanth/chrome_nihilanth.bmp
+- Assets/Materials/HEV_suit/PLAYER_Chrome1.mat
+- Assets/tau_cannon.fbx
+- Assets/Materials/vortiguant/Out-Arm1.bmp
+- Assets/HeadcrabAnimationController.controller
+- Assets/Materials/headcrab/front.mat
+- Assets/Materials/headcrab/transparent section.mat
+- Assets/Prefabs/vortiguant.prefab
+- Assets/Materials/vortiguant/Head_Top1.mat
+- Assets/Materials/vortiguant/Nostrils1.mat
+- Assets/Materials/vortiguant/Hip1.mat
+- Assets/Materials/vortiguant/Shldrs1.mat
+- Assets/Materials/icky/Rightarm.bmp
+- Assets/Materials/crystal/side.mat
+- Assets/Materials/vortiguant/FootPrint1.mat
+- Assets/Materials/vortiguant/Back1.mat
+Dependencies: []

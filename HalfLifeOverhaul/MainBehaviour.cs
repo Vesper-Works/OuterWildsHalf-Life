@@ -1,29 +1,25 @@
-﻿using OWML.ModHelper;
-using OWML.Common;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using UnityEngine;
+﻿using HarmonyLib;
+using OWML.ModHelper;
 using OWML.Utils;
-using System.Reflection;
-using System.IO;
-using System.Threading;
+using System;
 using System.Collections;
-using HarmonyLib;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using UnityEngine;
 
 namespace HalfLifeOverhaul
 {
-    class AnimatedWater : MonoBehaviour
+    internal class AnimatedWater : MonoBehaviour
     {
-        Material material;
+        private Material material;
 
-        void Start()
+        private void Start()
         {
             material = GetComponent<MeshRenderer>().material;
         }
 
-        void Update()
+        private void Update()
         {
             material.mainTextureOffset += new Vector2(0, Time.deltaTime * 0.25f);
         }
@@ -49,9 +45,7 @@ namespace HalfLifeOverhaul
             TypeExtensions.SetValue(titleAnimationController, "_optionsFadeSpacing", 0.001f);
 
             MeshPatcher.Load();
-
-            ModHelper.Events.Player.OnPlayerAwake += PatchAudio;
-
+            LoadManager.OnCompleteSceneLoad += PatchAudio;
             LoadManager.OnCompleteSceneLoad += PatchTextures;
         }
 
@@ -109,6 +103,7 @@ namespace HalfLifeOverhaul
                 material.SetTexture("_Overlay2DetailAlbedo", LoadTexture("HTrocks.png"));//_Overlay2DetailAlbedo
                 material.SetTexture("_Overlay3Leaves", LoadTexture("HTrocks.png"));//_Overlay3Leaves
                 material.SetTexture("_Overlay3Bump", LoadTexture("HTrocks.png"));//_Overlay3Bump
+                material.SetTexture("_SurfaceAlbedoTex", LoadTexture("AridGround.png"));
             }
 
             foreach (var mesh in emberTwinUndergroundGeometry.GetComponentsInChildren<MeshRenderer>())
@@ -123,10 +118,11 @@ namespace HalfLifeOverhaul
                 material.SetTexture("_Overlay2DetailAlbedo", LoadTexture("HTrocks.png"));//_Overlay2DetailAlbedo
                 material.SetTexture("_Overlay3Leaves", LoadTexture("HTrocks.png"));//_Overlay3Leaves
                 material.SetTexture("_Overlay3Bump", LoadTexture("HTrocks.png"));//_Overlay3Bump
+                material.SetTexture("_SurfaceAlbedoTex", LoadTexture("AridGround.png"));
             }
 
             var temp = GameObject.Find("CaveTwin_Body/SandSphere_Rising/SandSphere").GetComponent<TessellatedSphereRenderer>();
-           
+
             Shader shader = temp.sharedMaterials[0].shader;
 
             for (int i = 0; i < shader.GetPropertyCount(); i++)
@@ -136,7 +132,7 @@ namespace HalfLifeOverhaul
                     temp.sharedMaterial.SetTexture(shader.GetPropertyName(i), LoadTexture("WavySand.png"));
                 }
             }
-         
+
             shader = temp.sharedMaterials[1].shader;
 
             for (int i = 0; i < shader.GetPropertyCount(); i++)
@@ -152,7 +148,7 @@ namespace HalfLifeOverhaul
             #region AsheTwin
 
             temp = GameObject.Find("TowerTwin_Body/SandSphere_Draining/SandSphere").GetComponent<TessellatedSphereRenderer>();
-         
+
             shader = temp.sharedMaterials[0].shader;
 
             for (int i = 0; i < shader.GetPropertyCount(); i++)
@@ -178,75 +174,84 @@ namespace HalfLifeOverhaul
 
             #endregion
 
+            var ringRenderer = GameObject.Find("RingWorld_Body/Sector_RingInterior/Volumes_RingInterior/RingRiverFluidVolume/RingworldRiver").GetComponent<TessellatedRingRenderer>();
+            ringRenderer.sharedMaterial.shader = Shader.Find("Diffuse");
+            ringRenderer.sharedMaterial.mainTexture = LoadTexture("Water2.png");
+
 
             //Locator.GetSunTransform().gameObject.GetComponent<MeshRenderer>().material.color = Color.green;
 
+            foreach (var material in Resources.FindObjectsOfTypeAll<Material>())
+            {
+                if (material.mainTexture != null)
+                {
+                    if (material.ToString().ToLower().Contains("trunk") ||
+                    material.ToString().ToLower().Contains("tree") ||
+                    material.ToString().ToLower().Contains("bark") ||
+                    material.ToString().ToLower().Contains("vine"))
+                    {
+
+                        SetTextures(material, LoadTexture("RichTree.png"));
+                    }
+                    if (material.ToString().ToLower().Contains("leaves") || material.ToString().ToLower().Contains("leaf"))
+                    {
+                        SetTextures(material, LoadTexture("Cactus.png"));
+                    }
+                    if (material.ToString().ToLower().Contains("cactus"))
+                    {
+                        SetTextures(material, LoadTexture("Cactus.png"));
+                    }
+                    if (material.ToString().ToLower().Contains("plank")||
+                        material.ToString().ToLower().Contains("cabin"))
+                    {
+                        SetTextures(material, LoadTexture("Tree.png"));
+                    }
+                    if (material.ToString().ToLower().Contains("cliff") ||
+                          material.ToString().ToLower().Contains("rock")||
+                          material.ToString().ToLower().Contains("stone")||
+                          material.ToString().ToLower().Contains("terrain_th_geyser"))
+                    {
+                        SetTextures(material, LoadTexture("MarbleClifface.png"));
+                    }
+                    if (material.ToString().ToLower().Contains("bh"))
+                    {
+                        SetTextures(material, LoadTexture("BHSurface.png"));
+                    }
+                    if (material.ToString().ToLower().Contains("ice") && !material.ToString().ToLower().Contains("coreslice"))
+                    {
+                        SetTextures(material, LoadTexture("Ice.png"));
+                    }
+                    if (material.ToString().ToLower().Contains("metal"))
+                    {
+                        SetTextures(material, LoadTexture("Metal.png"));
+                    }
+                    if (material.ToString().ToLower().Contains("snow"))
+                    {
+                        SetTextures(material, LoadTexture("Snow.png"));
+                    } 
+                    if (material.ToString().ToLower().Contains("hct_surface"))
+                    {
+                        //material.SetTexture("_MainTex", LoadTexture("HTrocks.png"));
+                        //material.SetTexture("_SurfaceAlbedoTex", LoadTexture("AridGround.png"));
+                    }
+
+                    if (material.ToString().ToLower().Contains("dirt") || material.ToString().ToLower().Contains("craterfloor"))
+                    {
+                        SetTextures(material, LoadTexture("THGrass.png"));
+                        //material.gameObject.AddComponent<AnimatedWater>();
+                    }
+                }
+            }
+
             foreach (var item in Resources.FindObjectsOfTypeAll<MeshRenderer>())
             {
-                //ModHelper.Console.WriteLine(item.ToString());
-                //item.material.shader = Shader.Find("Outer Wilds/Environment/Ice");
-                //item.material.shader = Shader.Find("Lit");
-                if (item.ToString().ToLower().Contains("trunk") ||
-                    item.ToString().ToLower().Contains("tree") ||
-                    item.ToString().ToLower().Contains("bark"))
-                {
-
-                    SetTextures(item.material, LoadTexture("RichTree.png"));
-                }
-                if (item.ToString().ToLower().Contains("leaves") || item.ToString().ToLower().Contains("leaf"))
-                {
-                    SetTextures(item.material, LoadTexture("Cactus.png"));
-                }
-                if (item.ToString().ToLower().Contains("cactus"))
-                {
-                    SetTextures(item.material, LoadTexture("Cactus.png"));
-                }
-                if (item.ToString().ToLower().Contains("plank"))
-                {
-                    SetTextures(item.material, LoadTexture("Tree.png"));
-                }
-                if (item.ToString().ToLower().Contains("bakedterrain") &&
-                     item.ToString().ToLower().Contains("fragment"))
-                {
-                    SetTextures(item.material, LoadTexture("BHSurface.png"));
-                }
-                if (item.ToString().ToLower().Contains("bakedterrain") &&
-                     !item.ToString().ToLower().Contains("fragment"))
-                {
-                    SetTextures(item.material, LoadTexture("MarbleClifface.png"));
-                }
-                if (item.ToString().ToLower().Contains("ice") && !item.ToString().ToLower().Contains("coreslice"))
-                {
-                    SetTextures(item.material, LoadTexture("Ice.png"));
-                }
-                if (item.ToString().ToLower().Contains("metal"))
-                {
-                    SetTextures(item.material, LoadTexture("Metal.png"));
-                }
-                if (item.ToString().ToLower().Contains("snow"))
-                {
-                    SetTextures(item.material, LoadTexture("Snow.png"));
-                }
                 if (item.ToString().ToLower().Contains("water") ||
-                    item.ToString().ToLower().Contains("ocean") ||
-                    item.ToString().ToLower().Contains("tornado"))
+            item.ToString().ToLower().Contains("ocean") ||
+            item.ToString().ToLower().Contains("tornado"))
                 {
                     SetTextures(item.material, LoadTexture("Water.png"));
                     item.gameObject.AddComponent<AnimatedWater>();
                 }
-                if (item.ToString().ToLower().Contains("dirt"))
-                {
-                    SetTextures(item.material, LoadTexture("RichDirt.png"));
-                    //item.gameObject.AddComponent<AnimatedWater>();
-                }
-                //try { item.material.SetTexture("_MainTex", texture); }
-                //catch (Exception) { }
-                //try { item.material.SetTexture("_Overlay1Tex", texture); }
-                //catch (Exception) { }
-                //try { item.material.SetTexture("_Overlay2Tex", texture); }
-                //catch (Exception) { }
-                //try { item.material.SetTexture("_Overlay3Leaves", texture); }
-                //catch (Exception) { }
             }
         }
 
@@ -262,9 +267,7 @@ namespace HalfLifeOverhaul
         //        }
         //    }
 
-        //}
-
-        void SetTextures(Material mat, Texture2D texture)
+        private void SetTextures(Material mat, Texture2D texture)
         {
             mat.color = Color.white;
             mat.shader = Shader.Find("Diffuse");
@@ -303,7 +306,7 @@ namespace HalfLifeOverhaul
                 return LoadTexture("MissingTexture.png");
             }
         }
-        private void PatchAudio(PlayerBody playerBody)
+        private void PatchAudio(OWScene originalScene, OWScene loadScene)
         {
             if (Locator.GetAudioManager() == null)
             {
@@ -425,6 +428,16 @@ namespace HalfLifeOverhaul
                 AudioType.ShipReentryBurn_LP,
                 AudioType.ToolFlashlightOn,
                 AudioType.ToolFlashlightOff,
+                AudioType.Menu_UpDown,
+                AudioType.Menu_ChangeTab,
+                AudioType.Menu_LeftRight,
+                AudioType.Menu_Pause,
+                AudioType.Menu_RebindKey,
+                AudioType.Menu_Unpause,
+                AudioType.Menu_SliderIncrement,
+                AudioType.Menu_RebindKey,
+                AudioType.Menu_ResetDefaults,
+               
                 //
                 //
                 AudioType.TH_Village,
@@ -526,6 +539,15 @@ namespace HalfLifeOverhaul
                  new string[]{ "egon_off1LP.wav"},
                  new string[]{ "flashlight1.wav"},
                  new string[]{ "flashlight1.wav"},
+                 new string[]{ "buttonclickrelease.wav"},
+                 new string[]{ "buttonrollover.wav"},
+                 new string[]{ "buttonclick.wav"},
+                 new string[]{ "buttonclick.wav"},
+                 new string[]{ "buttonclick.wav"},
+                 new string[]{ "buttonclickrelease.wav"},
+                 new string[]{ "buttonrollover.wav"},
+                 new string[]{ "buttonclick.wav"},
+                 new string[]{ "buttonclick.wav"},
             //
             //
                  new string[]{ "Half-Life17.mp3"},
@@ -565,7 +587,6 @@ namespace HalfLifeOverhaul
         private AudioClip GetClip(string name)
         {
             if (instance.Sounds.ContainsKey(name)) { return instance.Sounds[name]; }
-
             AudioClip audioClip = ModHelper.Assets.GetAudio(name);
             instance.Sounds.Add(name, audioClip);
             return audioClip;

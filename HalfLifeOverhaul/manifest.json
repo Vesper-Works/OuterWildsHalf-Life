@@ -1,9 +1,9 @@
 {
   "filename": "HalfLifeOverhaul.dll",
-  "author": "Vesper",
+  "author": "Vesper & Xen",
   "name": "Half-Life Overhaul",
   "uniqueName": "Vesper.HalfLifeOverhaul",
   "description": "Replaces visuals and sound to that of Half-life 1!",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "owmlVersion": "2.2.0"
 }

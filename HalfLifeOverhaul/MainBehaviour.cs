@@ -32,7 +32,7 @@ namespace HalfLifeOverhaul
     {
         public Dictionary<string, Texture2D> Textures = new Dictionary<string, Texture2D>();
         public Dictionary<string, AudioClip> Sounds = new Dictionary<string, AudioClip>();
-        static MainBehaviour instance { get; set; }
+        public static MainBehaviour instance { get; set; }
         private void Start()
         {
             instance = this;
@@ -48,11 +48,11 @@ namespace HalfLifeOverhaul
             TypeExtensions.SetValue(titleAnimationController, "_optionsFadeDuration", 0.001f);
             TypeExtensions.SetValue(titleAnimationController, "_optionsFadeSpacing", 0.001f);
 
+            MeshPatcher.Load();
+
             ModHelper.Events.Player.OnPlayerAwake += PatchAudio;
 
-
             LoadManager.OnCompleteSceneLoad += PatchTextures;
-
         }
 
         //private void Update()

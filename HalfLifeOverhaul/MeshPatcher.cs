@@ -61,7 +61,7 @@ namespace HalfLifeOverhaul
             brambleNihilanth.transform.localPosition = new Vector3(-11f, -551.3993f, 1.12f);
             brambleNihilanth.transform.localScale = Vector3.one * 0.02f;
             brambleNihilanth.transform.localRotation = new Quaternion(0.0647f, 0.7471f, -0.6575f, 0.0735f);
-            //GameObject.Destroy(brambleNihilanth.GetComponent<Animator>());
+            brambleNihilanth.GetComponent<Animator>().speed = 0f; // Should pause the animation but keep the head open
             brambleNihilanth.SetActive(true);
             GameObject.Destroy(brambleFrozenJelly);
 
@@ -109,18 +109,15 @@ namespace HalfLifeOverhaul
             headcrab.transform.localRotation = Quaternion.AngleAxis(-35, Vector3.up);
             headcrab.SetActive(true);
 
-            /*
             // Tau cannon
             var signalscope = GameObject.Find("Player_Body/PlayerCamera/Signalscope/Props_HEA_Signalscope");
             var signalscopePrepass = GameObject.Find("Player_Body/PlayerCamera/Signalscope/Props_HEA_Signalscope/Props_HEA_Signalscope_Prepass");
-            GameObject.Destroy(signalscope.GetComponent<MeshFilter>());
-            GameObject.Destroy(signalscopePrepass.GetComponent<MeshFilter>());
             GameObject.Destroy(signalscope.GetComponent<MeshRenderer>());
             GameObject.Destroy(signalscopePrepass.GetComponent<MeshRenderer>());
             var tauCannon = GameObject.Instantiate(tauCannonPrefab, signalscope.transform);
-            tauCannon.transform.localPosition = Vector3.zero;
+            tauCannon.transform.localPosition = new Vector3(-0.14f, -0.15f, 0.15f);
+            tauCannon.transform.localScale = Vector3.one * 0.012f;
             tauCannon.SetActive(true);
-            */
         }
 
         private static GameObject LoadPrefab(AssetBundle bundle, string path)

@@ -55,7 +55,6 @@ namespace HalfLifeOverhaul
 
         public void OnChangeAction(GhostAction.Name action)
         {
-            MainBehaviour.instance.ModHelper.Console.WriteLine($"ACTION: {action}");
             VortiguantState state;
 
             switch(action)

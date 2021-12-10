@@ -174,9 +174,9 @@ namespace HalfLifeOverhaul
 
             #endregion
 
-            var ringRenderer = GameObject.Find("RingWorld_Body/Sector_RingInterior/Volumes_RingInterior/RingRiverFluidVolume/RingworldRiver").GetComponent<TessellatedRingRenderer>();
-            ringRenderer.sharedMaterial.shader = Shader.Find("Diffuse");
-            ringRenderer.sharedMaterial.mainTexture = LoadTexture("Water2.png");
+            //var ringRenderer = GameObject.Find("RingWorld_Body/Sector_RingInterior/Volumes_RingInterior/RingRiverFluidVolume/RingworldRiver").GetComponent<TessellatedRingRenderer>();
+            //ringRenderer.sharedMaterial.shader = Shader.Find("Diffuse");
+            //ringRenderer.sharedMaterial.mainTexture = LoadTexture("Water2.png");
 
 
             //Locator.GetSunTransform().gameObject.GetComponent<MeshRenderer>().material.color = Color.green;

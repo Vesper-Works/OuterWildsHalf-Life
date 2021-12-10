@@ -44,7 +44,9 @@ namespace HalfLifeOverhaul
             TypeExtensions.SetValue(titleAnimationController, "_optionsFadeDuration", 0.001f);
             TypeExtensions.SetValue(titleAnimationController, "_optionsFadeSpacing", 0.001f);
 
-            MeshPatcher.Load();
+            MeshPatcher.OnStart();
+            LoadManager.OnCompleteSceneLoad += MeshPatcher.PatchMeshes;
+            LoadManager.OnCompleteSceneLoad += SkeletonSwapper.SwapSkeletons;
             LoadManager.OnCompleteSceneLoad += PatchAudio;
             LoadManager.OnCompleteSceneLoad += PatchTextures;
         }

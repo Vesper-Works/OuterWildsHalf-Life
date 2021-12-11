@@ -21,5 +21,16 @@ namespace HalfLifeOverhaul
 
             return null;
         }
+
+        public static GameObject[] FindObjectsWithName(string name)
+        {
+            return Resources.FindObjectsOfTypeAll<GameObject>().Where(obj => obj.name.Equals(name)).ToArray();
+        }
+
+        public static string GetPath(Transform t)
+        {
+            if (t.parent == null) return t.name;
+            return GetPath(t.parent) + "/" + t.name;
+        }
     }
 }

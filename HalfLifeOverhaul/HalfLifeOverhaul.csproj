@@ -286,9 +286,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="IckyController.cs" />
+    <Compile Include="Logger.cs" />
     <Compile Include="MainBehaviour.cs" />
     <Compile Include="MeshPatcher.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SkeletonSwapper.cs" />
+    <Compile Include="Utility.cs" />
     <Compile Include="VortiguantController.cs" />
   </ItemGroup>
   <ItemGroup>

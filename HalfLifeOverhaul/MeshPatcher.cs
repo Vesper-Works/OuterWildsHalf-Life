@@ -9,19 +9,26 @@ namespace HalfLifeOverhaul
 {
     static class MeshPatcher
     {
+        private static bool _loaded = false;
+
         public static GameObject ickyPrefab;
         public static GameObject hevPrefab;
         public static GameObject nihilanthPrefab;
         public static GameObject tauCannonPrefab;
         public static GameObject vortiguantPrefab;
         public static GameObject headcrabPrefab;
-        public static GameObject scientistPrefab;
         public static GameObject[] scientistPrefabs = new GameObject[4];
+        public static GameObject gmanPrefab;
+        public static GameObject barneyPrefab;
+        public static GameObject suitGordonPrefeb;
+        public static GameObject gordonPrefab;
 
         private static Shader standardShader = Shader.Find("Standard");
 
         public static void OnStart()
         {
+            if (_loaded) return;
+
             var bundle = MainBehaviour.instance.ModHelper.Assets.LoadBundle("hlmodels");
 
             ickyPrefab = LoadPrefab(bundle, "Assets/Prefabs/icky.prefab");
@@ -30,15 +37,14 @@ namespace HalfLifeOverhaul
             tauCannonPrefab = LoadPrefab(bundle, "Assets/Prefabs/tau_cannon.prefab");
             vortiguantPrefab = LoadPrefab(bundle, "Assets/Prefabs/vortiguant.prefab");
             headcrabPrefab = LoadPrefab(bundle, "Assets/Prefabs/headcrab.prefab");
-
-            // Scientist prefab has two meshes on it for some reason TODO: Make the scientist prefab not readonly in Unity and delete the unneeded mesh
-            scientistPrefab = LoadPrefab(bundle, "Assets/Prefabs/scientist.prefab");
-            GameObject.Destroy(scientistPrefab.transform.Find("DM_Scientist_Biped1").gameObject);
-
             scientistPrefabs[0] = LoadPrefab(bundle, "Assets/Prefabs/scientist1.prefab"); // "Einstein"
             scientistPrefabs[1] = LoadPrefab(bundle, "Assets/Prefabs/scientist2.prefab"); // "Luther"
             scientistPrefabs[2] = LoadPrefab(bundle, "Assets/Prefabs/scientist3.prefab"); // "Nerd"
             scientistPrefabs[3] = LoadPrefab(bundle, "Assets/Prefabs/scientist4.prefab"); // "Slick"
+            barneyPrefab = LoadPrefab(bundle, "Assets/Prefabs/barney.prefab");
+            gordonPrefab = LoadPrefab(bundle, "Assets/Prefabs/gordon_nosuit.prefab");
+            suitGordonPrefeb = LoadPrefab(bundle, "Assets/Prefabs/gordon_suit.prefab");
+            gmanPrefab = LoadPrefab(bundle, "Assets/Prefabs/gman.prefab");
 
             // TODO: Replace solanum with gman
 
@@ -46,15 +52,16 @@ namespace HalfLifeOverhaul
 
             // TODO: Put headcrabs on the traveller's heads
 
-            // Apply patches
             MainBehaviour.instance.ModHelper.HarmonyHelper.AddPostfix<JellyfishController>("Awake", typeof(MeshPatcher), nameof(MeshPatcher.OnJellyFishControllerAwake));
-
             MainBehaviour.instance.ModHelper.HarmonyHelper.AddPostfix<AnglerfishController>("Awake", typeof(MeshPatcher), nameof(MeshPatcher.OnAnglerfishControllerAwake));
-
             MainBehaviour.instance.ModHelper.HarmonyHelper.AddPostfix<GhostController>("Initialize", typeof(MeshPatcher), nameof(MeshPatcher.OnGhostControllerInitialize));
             MainBehaviour.instance.ModHelper.HarmonyHelper.AddPostfix<GhostAction>("EnterAction", typeof(MeshPatcher), nameof(MeshPatcher.OnGhostActionEnterAction));
             MainBehaviour.instance.ModHelper.HarmonyHelper.AddPostfix<GhostBrain>("Die", typeof(MeshPatcher), nameof(MeshPatcher.OnGhostBrainDie));
             MainBehaviour.instance.ModHelper.HarmonyHelper.AddPrefix<GhostEffects>("SetEyeGlow", typeof(MeshPatcher), nameof(MeshPatcher.OnGhostEffectsSetEyeGlow));
+
+            LoadManager.OnCompleteSceneLoad += MeshPatcher.PatchMeshes;
+
+            _loaded = true;
         }
 
         private static GameObject LoadPrefab(AssetBundle bundle, string path)
@@ -67,7 +74,7 @@ namespace HalfLifeOverhaul
                 foreach (var mat in skinnedMeshRenderer.materials)
                 {
                     mat.shader = standardShader;
-                    mat.renderQueue = 0;
+                    mat.renderQueue = 2000;
                 }
             }
 
@@ -139,17 +146,24 @@ namespace HalfLifeOverhaul
         private static void ReplaceShip()
         {
             // HEV suit
-            var hangingSuit = GameObject.Find("Ship_Body/Module_Supplies/Systems_Supplies/ExpeditionGear/EquipmentGeo/Props_HEA_PlayerSuit_Hanging");
-            foreach (var mr in hangingSuit.GetComponentsInChildren<MeshRenderer>())
+            var hangingSuits = new GameObject[]
             {
-                GameObject.Destroy(mr);
+                GameObject.Find("Ship_Body/Module_Supplies/Systems_Supplies/ExpeditionGear/EquipmentGeo/Props_HEA_PlayerSuit_Hanging"),
+                GameObject.Find("TimberHearth_Body/Sector_TH/Sector_ZeroGCave/Interactables_ZeroGCave/SpaceSuit/Props_HEA_PlayerSuit_Hanging")
+            };
+            foreach(var hangingSuit in hangingSuits)
+            {
+                foreach (var mr in hangingSuit.GetComponentsInChildren<MeshRenderer>())
+                {
+                    GameObject.Destroy(mr);
+                }
+                var jacket = hangingSuit.transform.Find("PlayerSuit_Jacket").gameObject;
+                var HEVsuit = GameObject.Instantiate(hevPrefab, jacket.transform);
+                HEVsuit.transform.localPosition = new Vector3(-0.3f, -1f, 0f);
+                HEVsuit.transform.localScale = Vector3.one * 0.025f;
+                HEVsuit.transform.localRotation = Quaternion.AngleAxis(-90, Vector3.up);
+                HEVsuit.SetActive(true);
             }
-            var jacket = hangingSuit.transform.Find("PlayerSuit_Jacket").gameObject;
-            var HEVsuit = GameObject.Instantiate(hevPrefab, jacket.transform);
-            HEVsuit.transform.localPosition = new Vector3(-0.3f, -1f, 0f);
-            HEVsuit.transform.localScale = Vector3.one * 0.025f;
-            HEVsuit.transform.localRotation = Quaternion.AngleAxis(-90, Vector3.up);
-            HEVsuit.SetActive(true);
 
             // Put a headcrab on the shelf why not
             var shelf = GameObject.Find("Ship_Body/Module_Supplies/Systems_Supplies");

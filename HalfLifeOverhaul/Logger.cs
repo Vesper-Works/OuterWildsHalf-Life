@@ -14,15 +14,27 @@ namespace HalfLifeOverhaul
             MainBehaviour.instance.ModHelper.Console.WriteLine($"{type}: {message}", type);
         }
 
-        public static void LogPath(GameObject obj)
+        public static void LogWarning(string message)
         {
-            Log(GetPath(obj.transform));
+            Log(message, OWML.Common.MessageType.Warning);
         }
 
-        private static string GetPath(Transform t)
+        public static void LogError(string message)
         {
-            if (t.parent == null) return t.name;
-            return GetPath(t.parent) + t.name;
+            Log(message, OWML.Common.MessageType.Error);
+        }
+
+        public static void LogPath(GameObject obj)
+        {
+            Log(Utility.GetPath(obj.transform));
+        }
+
+        public static void LogSkeleton(SkinnedMeshRenderer mesh)
+        {
+            foreach(var bone in mesh.bones)
+            {
+                MainBehaviour.instance.ModHelper.Console.WriteLine($"BONE: {bone.parent.name} -> {bone.name}");
+            }
         }
     }
 }

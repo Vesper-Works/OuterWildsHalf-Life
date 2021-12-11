@@ -1,9 +1,9 @@
 ManifestFileVersion: 0
-CRC: 4176876270
+CRC: 1114055062
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 619e8090840310ffc5c9a31dd787c8e2
+    Hash: 8d1d26d6dd82276a21891a7de2a23b87
   TypeTreeHash:
     serializedVersion: 2
     Hash: db59cb376d8c5d2b289f57e3f739454e
@@ -40,6 +40,7 @@ Assets:
 - Assets/Materials/gman/GMan_Mouth1.mat
 - Assets/Materials/vortiguant/Chrome_1.mat
 - Assets/Materials/scientists/L_Side1.mat
+- Assets/helmet.fbx
 - Assets/Materials/gman/GMan_Collar1.bmp
 - Assets/crystal.fbx
 - Assets/Materials/scientists/Sci2_Hand(Black)1.mat
@@ -50,6 +51,7 @@ Assets:
 - Assets/Materials/vortiguant/Side1.mat
 - Assets/Materials/vortiguant/B-Small_Arm1.mat
 - Assets/Materials/icky/mouth.mat
+- Assets/barney.fbx
 - Assets/Materials/icky/leftarm.bmp
 - Assets/Prefabs/HEV_suit.prefab
 - Assets/Materials/vortiguant/Leg_Out1.bmp
@@ -61,9 +63,11 @@ Assets:
 - Assets/Materials/gman/GMan_Mouth1.bmp
 - Assets/Materials/tau_cannon/rubbertube.bmp
 - Assets/Materials/gman/GMan_Hand-Btm1.bmp
+- Assets/Materials/barney/DM_Base.mat
 - Assets/Materials/vortiguant/Mouth1.bmp
 - Assets/Materials/gman/GMan_FootBtm1.mat
 - Assets/Materials/gman/GMan_SuitTop2.mat
+- Assets/gordon_head.fbx
 - Assets/Materials/gman/GMan_PantsBtm1.mat
 - Assets/Materials/vortiguant/Heel1.bmp
 - Assets/Prefabs/nihilanth.prefab
@@ -76,6 +80,7 @@ Assets:
 - Assets/Materials/gman/GMan_Pelvis1.mat
 - Assets/Materials/nihilanth/arm.bmp
 - Assets/Materials/icky/belly.mat
+- Assets/Materials/Gordon_suit/PLAYER_Chrome1.bmp
 - Assets/Materials/icky/Rightarm.mat
 - Assets/Materials/vortiguant/Eye1.bmp
 - Assets/Materials/nihilanth/centerarm.mat
@@ -84,6 +89,7 @@ Assets:
 - Assets/Materials/scientists/SCI3_LegBack1.mat
 - Assets/Materials/HEV_suit/front.bmp
 - Assets/Materials/gman/GMan_Hand-Top1.mat
+- Assets/Materials/Gordon_suit/DM_Base.mat
 - Assets/Materials/scientists/SCI3X_Face1.mat
 - Assets/Materials/nihilanth/front_torso.mat
 - Assets/Materials/tau_cannon/stock.bmp
@@ -95,6 +101,7 @@ Assets:
 - Assets/gman_lookdown.anim
 - Assets/Materials/nihilanth/forehead.mat
 - Assets/Materials/vortiguant/Sml_Arm_Fnt1.bmp
+- Assets/Prefabs/gordon_suit.prefab
 - Assets/headcrab.fbx
 - Assets/Materials/scientists/Sci2_Tounge.bmp
 - Assets/Materials/scientists/SCI3X_HSide1.mat
@@ -102,6 +109,8 @@ Assets:
 - Assets/Materials/nihilanth/forehead.bmp
 - Assets/Materials/gman/GMan_Arm-L1.mat
 - Assets/Materials/vortiguant/Hand_Side1.bmp
+- Assets/Materials/Gordon_head/DM_Face.mat
+- Assets/Prefabs/gman.prefab
 - Assets/Materials/gman/GMan_Case1.bmp
 - Assets/Materials/vortiguant/Chrome_1.bmp
 - Assets/Materials/icky/chrome_tooth.bmp
@@ -123,8 +132,10 @@ Assets:
 - Assets/Materials/gman/GMan_Back2.mat
 - Assets/Materials/icky/Headmap.bmp
 - Assets/Materials/nihilanth/front_torso.bmp
+- Assets/Materials/barney/face.bmp
 - Assets/Materials/vortiguant/Palm1.mat
 - Assets/Materials/icky/back_eye.bmp
+- Assets/Materials/barney/DM_Base.bmp
 - Assets/Materials/scientists/Stache1.mat
 - Assets/Materials/scientists/Sci2_Chrome1.bmp
 - Assets/Materials/vortiguant/Pelvis_Fnt.bmp
@@ -159,6 +170,8 @@ Assets:
 - Assets/Materials/vortiguant/Hand_Top_Sm1.mat
 - Assets/Materials/vortiguant/Nostrils1.bmp
 - Assets/Materials/tau_cannon/bottle.mat
+- Assets/Materials/barney/DM_Base 1.bmp
+- Assets/Materials/barney/Helmet_Chrome.mat
 - Assets/Materials/nihilanth/face2.bmp
 - Assets/Materials/tau_cannon/barrelCHROME.bmp
 - Assets/Materials/gman/GMAN_Face2.mat
@@ -173,6 +186,7 @@ Assets:
 - Assets/Materials/vortiguant/Eye1.mat
 - Assets/Materials/gman/inside_2.bmp
 - Assets/Materials/vortiguant/Heel1.mat
+- Assets/Materials/barney/face.mat
 - Assets/Materials/gman/GMan_Case1.mat
 - Assets/Materials/vortiguant/In_Arm1.mat
 - Assets/Materials/gman/GMan_BArm-1.bmp
@@ -183,6 +197,7 @@ Assets:
 - Assets/Materials/nihilanth/headside.mat
 - Assets/Materials/vortiguant/Jaw_1.bmp
 - Assets/Materials/gman/GMan_Hand-Top1.bmp
+- Assets/Materials/Gordon_head/DM_Face.bmp
 - Assets/Materials/scientists/Sci3(C-Tail).bmp
 - Assets/Materials/headcrab/bottom.mat
 - Assets/Materials/tau_cannon/body_rear.bmp
@@ -191,6 +206,7 @@ Assets:
 - Assets/Materials/headcrab/lowerside.bmp
 - Assets/Materials/nihilanth/chrome_nihilanth.mat
 - Assets/Materials/gman/GMan_FootBtm1.bmp
+- Assets/Materials/barney/DM_Base 1.mat
 - Assets/vorti_walk.anim
 - Assets/Materials/HEV_suit/front.mat
 - Assets/Materials/nihilanth/handback.bmp
@@ -203,6 +219,7 @@ Assets:
 - Assets/Materials/vortiguant/Side1.bmp
 - Assets/Materials/scientist/DM_Base.mat
 - Assets/Materials/HEV_suit/PLAYER_Chrome1.bmp
+- Assets/Prefabs/barney.prefab
 - Assets/scientist.fbx
 - Assets/vorti_idle.anim
 - Assets/Materials/scientists/Sci3(L-Arm).bmp
@@ -215,6 +232,7 @@ Assets:
 - Assets/Materials/icky/leftarm.mat
 - Assets/Materials/gman/GMan_Shin1.bmp
 - Assets/Materials/nihilanth/headside.bmp
+- Assets/Prefabs/gordon_nosuit.prefab
 - Assets/Materials/gman/GMan_Teeth1.mat
 - Assets/Materials/icky/frontquarterpanel.mat
 - Assets/Materials/tau_cannon/bottle.bmp
@@ -247,6 +265,7 @@ Assets:
 - Assets/Materials/scientists/Hair_Side1.mat
 - Assets/Materials/scientists/SCI3X_Face1.bmp
 - Assets/Materials/scientists/Sci2_Knuckles(Blk).mat
+- Assets/Materials/barney/Helmet_Chrome.bmp
 - Assets/Materials/vortiguant/Hand1.bmp
 - Assets/Materials/vortiguant/Shldrs1.bmp
 - Assets/Materials/gman/GMan_PantsBck1.bmp
@@ -261,6 +280,7 @@ Assets:
 - Assets/icky.fbx
 - Assets/Materials/scientists/Sci2_Hd-Side.mat
 - Assets/Materials/nihilanth/arm.mat
+- Assets/Materials/Gordon_suit/PLAYER_Chrome1.mat
 - Assets/Materials/vortiguant/Jaw_1.mat
 - Assets/Materials/scientists/Sci2_Knuckles.bmp
 - Assets/Materials/scientists/Stache1.bmp
@@ -280,6 +300,7 @@ Assets:
 - Assets/Materials/vortiguant/Out-Arm1.bmp
 - Assets/HeadcrabAnimationController.controller
 - Assets/Materials/scientists/Sci2_Teeth.bmp
+- Assets/Materials/Gordon_suit/DM_Base.bmp
 - Assets/Materials/headcrab/front.mat
 - Assets/Materials/scientists/Sci3(R-Leg).bmp
 - Assets/Materials/headcrab/transparent section.mat

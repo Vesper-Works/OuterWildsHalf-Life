@@ -1,4 +1,5 @@
-﻿using OWML.Utils;
+﻿using HalfLifeOverhaul.Util;
+using OWML.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,7 +7,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
-using static StreamingMeshHandle;
+using Logger = HalfLifeOverhaul.Util.Logger;
 
 namespace HalfLifeOverhaul
 {
@@ -182,7 +183,6 @@ namespace HalfLifeOverhaul
             var skinnedMeshRenderers = newModel.transform.GetComponentsInChildren<SkinnedMeshRenderer>();
             foreach (var skinnedMeshRenderer in skinnedMeshRenderers)
             {
-                if (skinnedMeshRenderer.name.Equals("DM_Gordon_Head1")) continue;
                 var bones = skinnedMeshRenderer.bones;
                 for (int i = 0; i < bones.Length; i++)
                 {
@@ -196,8 +196,9 @@ namespace HalfLifeOverhaul
                         bone.localScale = Vector3.one * scale;
 
                         // Have to adjust all heads but the player bc Hearthians got some really long necks
-                        if(!bone.name.Contains("Head") || !(prefab == MeshPatcher.gordonPrefab || prefab == MeshPatcher.suitGordonPrefeb))
+                        if (!bone.name.Contains("Head") || !(prefab == MeshPatcher.gordonPrefab || prefab == MeshPatcher.suitGordonPrefeb))
                             bone.localPosition = scale * (boneOffsets.ContainsKey(bone.name) ? boneOffsets[bone.name] : Vector3.zero);
+                        else bone.localPosition = new Vector3(0.3f, -0.1f, -0.15f);
 
                         if (bone.name.Contains("L Foot")) bone.localRotation = Quaternion.Euler(new Vector3(90, 270, 0));
                         else if (bone.name.Equals("Bip01 R Foot")) bone.localRotation = Quaternion.Euler(new Vector3(90, 90, 0));

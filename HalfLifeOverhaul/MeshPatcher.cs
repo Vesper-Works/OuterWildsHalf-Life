@@ -1,4 +1,6 @@
-﻿using System;
+﻿using HalfLifeOverhaul.Controllers;
+using HalfLifeOverhaul.Util;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -53,11 +55,22 @@ namespace HalfLifeOverhaul
             // TODO: Put headcrabs on the traveller's heads
 
             MainBehaviour.instance.ModHelper.HarmonyHelper.AddPostfix<JellyfishController>("Awake", typeof(MeshPatcher), nameof(MeshPatcher.OnJellyFishControllerAwake));
+
             MainBehaviour.instance.ModHelper.HarmonyHelper.AddPostfix<AnglerfishController>("Awake", typeof(MeshPatcher), nameof(MeshPatcher.OnAnglerfishControllerAwake));
+
             MainBehaviour.instance.ModHelper.HarmonyHelper.AddPostfix<GhostController>("Initialize", typeof(MeshPatcher), nameof(MeshPatcher.OnGhostControllerInitialize));
             MainBehaviour.instance.ModHelper.HarmonyHelper.AddPostfix<GhostAction>("EnterAction", typeof(MeshPatcher), nameof(MeshPatcher.OnGhostActionEnterAction));
             MainBehaviour.instance.ModHelper.HarmonyHelper.AddPostfix<GhostBrain>("Die", typeof(MeshPatcher), nameof(MeshPatcher.OnGhostBrainDie));
             MainBehaviour.instance.ModHelper.HarmonyHelper.AddPrefix<GhostEffects>("SetEyeGlow", typeof(MeshPatcher), nameof(MeshPatcher.OnGhostEffectsSetEyeGlow));
+
+            MainBehaviour.instance.ModHelper.HarmonyHelper.AddPostfix<SolanumAnimController>("Awake", typeof(MeshPatcher), nameof(MeshPatcher.OnSolanumAnimControllerAwake));
+            MainBehaviour.instance.ModHelper.HarmonyHelper.AddPostfix<SolanumAnimController>("StartConversation", typeof(MeshPatcher), nameof(MeshPatcher.OnStartConversation));
+            MainBehaviour.instance.ModHelper.HarmonyHelper.AddPostfix<SolanumAnimController>("EndConversation", typeof(MeshPatcher), nameof(MeshPatcher.OnEndConversation));
+            MainBehaviour.instance.ModHelper.HarmonyHelper.AddPostfix<SolanumAnimController>("PlayGestureToWordStones", typeof(MeshPatcher), nameof(MeshPatcher.OnGesture));
+            MainBehaviour.instance.ModHelper.HarmonyHelper.AddPostfix<SolanumAnimController>("PlayGestureToCairns", typeof(MeshPatcher), nameof(MeshPatcher.OnGesture));
+            MainBehaviour.instance.ModHelper.HarmonyHelper.AddPostfix<SolanumAnimController>("StartWritingMessage", typeof(MeshPatcher), nameof(MeshPatcher.OnGesture));
+            MainBehaviour.instance.ModHelper.HarmonyHelper.AddPostfix<SolanumAnimController>("PlayRaiseCairns", typeof(MeshPatcher), nameof(MeshPatcher.OnRaiseCairns));
+            MainBehaviour.instance.ModHelper.HarmonyHelper.AddPostfix<SolanumAnimController>("StopWatchingPlayer", typeof(MeshPatcher), nameof(MeshPatcher.OnStopWatchingPlayer));
 
             LoadManager.OnCompleteSceneLoad += MeshPatcher.PatchMeshes;
 
@@ -82,6 +95,8 @@ namespace HalfLifeOverhaul
 
             return prefab;
         }
+
+        #region PatchMeshes
 
         public static void PatchMeshes(OWScene _, OWScene currentScene)
         {
@@ -198,6 +213,9 @@ namespace HalfLifeOverhaul
             // TODO: Replace props in the word that have these models
         }
 
+        #endregion PatchMeshes
+
+        #region patches
 
         #region Jellyfish patches
         private static void OnJellyFishControllerAwake(JellyfishController __instance)
@@ -251,7 +269,6 @@ namespace HalfLifeOverhaul
             vortiguant.AddComponent<VortiguantController>();
             vortiguant.SetActive(true);
 
-            // Need to disappear this but doing it breaks a lot of stuff
             foreach(var r in __instance.transform.Find("Ghostbird_IP_ANIM/Ghostbird_Skin_01:Ghostbird_v004:Ghostbird_IP").GetComponentsInChildren<Renderer>())
             {
                 GameObject.Destroy(r);                
@@ -279,7 +296,59 @@ namespace HalfLifeOverhaul
             ____controller.gameObject.GetComponentInChildren<VortiguantController>().SetEyeGlow(__0);
 
             return false;
-        } 
+        }
         #endregion
+
+        #region Gman patches
+        private static void OnSolanumAnimControllerAwake(SolanumAnimController __instance)
+        {
+            var solanum = __instance.gameObject;
+
+            var gman = GameObject.Instantiate(gmanPrefab, solanum.transform);
+            gman.transform.localPosition = Vector3.zero;
+            gman.transform.localScale = Vector3.one * 0.030f;
+            gman.name = "Gman";
+            gman.AddComponent<GmanController>();
+
+            solanum.transform.Find("Nomai_Mesh:Mesh").gameObject.SetActive(false);
+
+            //Get rid of the "black eyes fix" quads
+            foreach(Transform child in Utility.SearchInChildren(solanum.transform, "Nomai_Rig_v01:Neck_TopSHJnt").transform)
+            {
+                child.gameObject.SetActive(false);
+            }
+
+            // Gets rid of the staff
+            Utility.SearchInChildren(solanum.transform, "Nomai_Rig_v01:LF_Arm_WristSHJnt").gameObject.SetActive(false);
+            gman.SetActive(true);
+        }
+
+        private static void OnStartConversation(SolanumAnimController __instance)
+        {
+            __instance.gameObject.GetComponentInChildren<GmanController>().TriggerAnim(GmanController.GmanState.Yes);
+        }
+
+        private static void OnEndConversation(SolanumAnimController __instance)
+        {
+            __instance.gameObject.GetComponentInChildren<GmanController>().TriggerAnim(GmanController.GmanState.No);
+        }
+
+        private static void OnGesture(SolanumAnimController __instance)
+        {
+            __instance.gameObject.GetComponentInChildren<GmanController>().TriggerAnim(GmanController.GmanState.Brush);
+        }
+
+        private static void OnRaiseCairns(SolanumAnimController __instance)
+        {
+            __instance.gameObject.GetComponentInChildren<GmanController>().TriggerAnim(GmanController.GmanState.LookDown);
+        }
+
+        private static void OnStopWatchingPlayer(SolanumAnimController __instance)
+        {
+            __instance.gameObject.GetComponentInChildren<GmanController>().TriggerAnim(GmanController.GmanState.LookAround);
+        }
+        #endregion Gman patches
+
+        #endregion patches
     }
 }

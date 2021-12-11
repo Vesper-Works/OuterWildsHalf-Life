@@ -1,4 +1,6 @@
-﻿using System;
+﻿using HalfLifeOverhaul.Controllers;
+using HalfLifeOverhaul.Util;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,17 +11,26 @@ namespace HalfLifeOverhaul
 {
     static class MeshPatcher
     {
-        static GameObject ickyPrefab;
-        static GameObject hevPrefab;
-        static GameObject nihilanthPrefab;
-        static GameObject tauCannonPrefab;
-        static GameObject vortiguantPrefab;
-        static GameObject headcrabPrefab;
+        private static bool _loaded = false;
 
-        static Shader standardShader = Shader.Find("Standard");
+        public static GameObject ickyPrefab;
+        public static GameObject hevPrefab;
+        public static GameObject nihilanthPrefab;
+        public static GameObject tauCannonPrefab;
+        public static GameObject vortiguantPrefab;
+        public static GameObject headcrabPrefab;
+        public static GameObject[] scientistPrefabs = new GameObject[4];
+        public static GameObject gmanPrefab;
+        public static GameObject barneyPrefab;
+        public static GameObject suitGordonPrefeb;
+        public static GameObject gordonPrefab;
 
-        public static void Load()
+        private static Shader standardShader = Shader.Find("Standard");
+
+        public static void OnStart()
         {
+            if (_loaded) return;
+
             var bundle = MainBehaviour.instance.ModHelper.Assets.LoadBundle("hlmodels");
 
             ickyPrefab = LoadPrefab(bundle, "Assets/Prefabs/icky.prefab");
@@ -28,6 +39,20 @@ namespace HalfLifeOverhaul
             tauCannonPrefab = LoadPrefab(bundle, "Assets/Prefabs/tau_cannon.prefab");
             vortiguantPrefab = LoadPrefab(bundle, "Assets/Prefabs/vortiguant.prefab");
             headcrabPrefab = LoadPrefab(bundle, "Assets/Prefabs/headcrab.prefab");
+            scientistPrefabs[0] = LoadPrefab(bundle, "Assets/Prefabs/scientist1.prefab"); // "Einstein"
+            scientistPrefabs[1] = LoadPrefab(bundle, "Assets/Prefabs/scientist2.prefab"); // "Luther"
+            scientistPrefabs[2] = LoadPrefab(bundle, "Assets/Prefabs/scientist3.prefab"); // "Nerd"
+            scientistPrefabs[3] = LoadPrefab(bundle, "Assets/Prefabs/scientist4.prefab"); // "Slick"
+            barneyPrefab = LoadPrefab(bundle, "Assets/Prefabs/barney.prefab");
+            gordonPrefab = LoadPrefab(bundle, "Assets/Prefabs/gordon_nosuit.prefab");
+            suitGordonPrefeb = LoadPrefab(bundle, "Assets/Prefabs/gordon_suit.prefab");
+            gmanPrefab = LoadPrefab(bundle, "Assets/Prefabs/gman.prefab");
+
+            // TODO: Replace solanum with gman
+
+            // TODO: Replace owl mummies with vortigaunts
+
+            // TODO: Put headcrabs on the traveller's heads
 
             MainBehaviour.instance.ModHelper.HarmonyHelper.AddPostfix<JellyfishController>("Awake", typeof(MeshPatcher), nameof(MeshPatcher.OnJellyFishControllerAwake));
 
@@ -38,10 +63,52 @@ namespace HalfLifeOverhaul
             MainBehaviour.instance.ModHelper.HarmonyHelper.AddPostfix<GhostBrain>("Die", typeof(MeshPatcher), nameof(MeshPatcher.OnGhostBrainDie));
             MainBehaviour.instance.ModHelper.HarmonyHelper.AddPrefix<GhostEffects>("SetEyeGlow", typeof(MeshPatcher), nameof(MeshPatcher.OnGhostEffectsSetEyeGlow));
 
-            MainBehaviour.instance.ModHelper.Events.Player.OnPlayerAwake += PatchMeshes;
+            MainBehaviour.instance.ModHelper.HarmonyHelper.AddPostfix<SolanumAnimController>("Awake", typeof(MeshPatcher), nameof(MeshPatcher.OnSolanumAnimControllerAwake));
+            MainBehaviour.instance.ModHelper.HarmonyHelper.AddPostfix<SolanumAnimController>("StartConversation", typeof(MeshPatcher), nameof(MeshPatcher.OnStartConversation));
+            MainBehaviour.instance.ModHelper.HarmonyHelper.AddPostfix<SolanumAnimController>("EndConversation", typeof(MeshPatcher), nameof(MeshPatcher.OnEndConversation));
+            MainBehaviour.instance.ModHelper.HarmonyHelper.AddPostfix<SolanumAnimController>("PlayGestureToWordStones", typeof(MeshPatcher), nameof(MeshPatcher.OnGesture));
+            MainBehaviour.instance.ModHelper.HarmonyHelper.AddPostfix<SolanumAnimController>("PlayGestureToCairns", typeof(MeshPatcher), nameof(MeshPatcher.OnGesture));
+            MainBehaviour.instance.ModHelper.HarmonyHelper.AddPostfix<SolanumAnimController>("StartWritingMessage", typeof(MeshPatcher), nameof(MeshPatcher.OnGesture));
+            MainBehaviour.instance.ModHelper.HarmonyHelper.AddPostfix<SolanumAnimController>("PlayRaiseCairns", typeof(MeshPatcher), nameof(MeshPatcher.OnRaiseCairns));
+            MainBehaviour.instance.ModHelper.HarmonyHelper.AddPostfix<SolanumAnimController>("StopWatchingPlayer", typeof(MeshPatcher), nameof(MeshPatcher.OnStopWatchingPlayer));
+
+            LoadManager.OnCompleteSceneLoad += MeshPatcher.PatchMeshes;
+
+            _loaded = true;
         }
 
-        public static void PatchMeshes(PlayerBody _)
+        private static GameObject LoadPrefab(AssetBundle bundle, string path)
+        {
+            var prefab = bundle.LoadAsset<GameObject>(path);
+
+            // Repair materials             
+            foreach(var skinnedMeshRenderer in prefab.GetComponentsInChildren<SkinnedMeshRenderer>())
+            {
+                foreach (var mat in skinnedMeshRenderer.materials)
+                {
+                    mat.shader = standardShader;
+                    mat.renderQueue = 2000;
+                }
+            }
+
+            prefab.SetActive(false);
+
+            return prefab;
+        }
+
+        #region PatchMeshes
+
+        public static void PatchMeshes(OWScene _, OWScene currentScene)
+        {
+            if (currentScene != OWScene.SolarSystem) return;
+
+            ReplaceJellyfish();
+            ReplaceAnglerfish();
+            ReplaceShip();
+            ReplaceTools();
+        }
+
+        private static void ReplaceJellyfish()
         {
             // Bramble island frozen jellyfish
             var brambleIsland = GameObject.Find("BrambleIsland_Body/Sector_BrambleIsland/Geo_BrambleIsland/BatchedGroup");
@@ -50,7 +117,7 @@ namespace HalfLifeOverhaul
             GameObject islandNihilanth = GameObject.Instantiate(nihilanthPrefab, brambleIsland.transform);
             islandNihilanth.transform.localPosition = new Vector3(-35, 25, 22);
             islandNihilanth.transform.localScale = Vector3.one * 0.02f;
-            islandNihilanth.transform.localRotation = new Quaternion(-0.15f, -0.69f, 0f, 0.70f );
+            islandNihilanth.transform.localRotation = new Quaternion(-0.15f, -0.69f, 0f, 0.70f);
             GameObject.Destroy(islandNihilanth.GetComponent<Animator>());
             islandNihilanth.SetActive(true);
 
@@ -75,7 +142,10 @@ namespace HalfLifeOverhaul
             GameObject.Destroy(quantumNihilanth.GetComponent<Animator>());
             quantumNihilanth.SetActive(true);
             GameObject.Destroy(jelly);
+        }
 
+        private static void ReplaceAnglerfish()
+        {
             // Museum angler fish
             GameObject tank = GameObject.Find("TimberHearth_Body/Sector_TH/Sector_Village/Sector_Observatory/Interactables_Observatory/AnglerFishExhibit/AnglerFishTankPivot").gameObject;
             GameObject tankFish = tank.transform.Find("Beast_Anglerfish").gameObject;
@@ -86,19 +156,29 @@ namespace HalfLifeOverhaul
             tankIcky.GetComponent<Animator>().SetBool("Lurking", true);
             tankIcky.SetActive(true);
             GameObject.Destroy(tankFish.transform.Find("Beast_Anglerfish").gameObject);
+        }
 
+        private static void ReplaceShip()
+        {
             // HEV suit
-            var hangingSuit = GameObject.Find("Ship_Body/Module_Supplies/Systems_Supplies/ExpeditionGear/EquipmentGeo/Props_HEA_PlayerSuit_Hanging");
-            foreach (var mr in hangingSuit.GetComponentsInChildren<MeshRenderer>())
+            var hangingSuits = new GameObject[]
             {
-                GameObject.Destroy(mr);
+                GameObject.Find("Ship_Body/Module_Supplies/Systems_Supplies/ExpeditionGear/EquipmentGeo/Props_HEA_PlayerSuit_Hanging"),
+                GameObject.Find("TimberHearth_Body/Sector_TH/Sector_ZeroGCave/Interactables_ZeroGCave/SpaceSuit/Props_HEA_PlayerSuit_Hanging")
+            };
+            foreach(var hangingSuit in hangingSuits)
+            {
+                foreach (var mr in hangingSuit.GetComponentsInChildren<MeshRenderer>())
+                {
+                    GameObject.Destroy(mr);
+                }
+                var jacket = hangingSuit.transform.Find("PlayerSuit_Jacket").gameObject;
+                var HEVsuit = GameObject.Instantiate(hevPrefab, jacket.transform);
+                HEVsuit.transform.localPosition = new Vector3(-0.3f, -1f, 0f);
+                HEVsuit.transform.localScale = Vector3.one * 0.025f;
+                HEVsuit.transform.localRotation = Quaternion.AngleAxis(-90, Vector3.up);
+                HEVsuit.SetActive(true);
             }
-            var jacket = hangingSuit.transform.Find("PlayerSuit_Jacket").gameObject;
-            var HEVsuit = GameObject.Instantiate(hevPrefab, jacket.transform);
-            HEVsuit.transform.localPosition = new Vector3(-0.3f, -1f, 0f);
-            HEVsuit.transform.localScale = Vector3.one * 0.025f;
-            HEVsuit.transform.localRotation = Quaternion.AngleAxis(-90, Vector3.up);
-            HEVsuit.SetActive(true);
 
             // Put a headcrab on the shelf why not
             var shelf = GameObject.Find("Ship_Body/Module_Supplies/Systems_Supplies");
@@ -109,6 +189,13 @@ namespace HalfLifeOverhaul
             headcrab.transform.localRotation = Quaternion.AngleAxis(-35, Vector3.up);
             headcrab.SetActive(true);
 
+            // TODO: Replace healing station with one from half life
+
+            // TODO: Replace probe and probe launcher on shelves with half life versions
+        }
+
+        private static void ReplaceTools()
+        {
             // Tau cannon
             var signalscope = GameObject.Find("Player_Body/PlayerCamera/Signalscope/Props_HEA_Signalscope");
             var signalscopePrepass = GameObject.Find("Player_Body/PlayerCamera/Signalscope/Props_HEA_Signalscope/Props_HEA_Signalscope_Prepass");
@@ -118,23 +205,17 @@ namespace HalfLifeOverhaul
             tauCannon.transform.localPosition = new Vector3(-0.14f, -0.15f, 0.15f);
             tauCannon.transform.localScale = Vector3.one * 0.012f;
             tauCannon.SetActive(true);
+
+            // TODO: Probe launcher to rocket launcher
+
+            // TODO: Translator to... something
+
+            // TODO: Replace props in the word that have these models
         }
 
-        private static GameObject LoadPrefab(AssetBundle bundle, string path)
-        {
-            var prefab = bundle.LoadAsset<GameObject>(path);
+        #endregion PatchMeshes
 
-            // Repair materials
-            foreach (var mat in prefab.GetComponentInChildren<SkinnedMeshRenderer>().materials)
-            {
-                mat.shader = standardShader;
-                mat.renderQueue = 0;
-            }
-
-            prefab.SetActive(false);
-
-            return prefab;
-        }
+        #region patches
 
         #region Jellyfish patches
         private static void OnJellyFishControllerAwake(JellyfishController __instance)
@@ -188,7 +269,6 @@ namespace HalfLifeOverhaul
             vortiguant.AddComponent<VortiguantController>();
             vortiguant.SetActive(true);
 
-            // Need to disappear this but doing it breaks a lot of stuff
             foreach(var r in __instance.transform.Find("Ghostbird_IP_ANIM/Ghostbird_Skin_01:Ghostbird_v004:Ghostbird_IP").GetComponentsInChildren<Renderer>())
             {
                 GameObject.Destroy(r);                
@@ -216,7 +296,59 @@ namespace HalfLifeOverhaul
             ____controller.gameObject.GetComponentInChildren<VortiguantController>().SetEyeGlow(__0);
 
             return false;
-        } 
+        }
         #endregion
+
+        #region Gman patches
+        private static void OnSolanumAnimControllerAwake(SolanumAnimController __instance)
+        {
+            var solanum = __instance.gameObject;
+
+            var gman = GameObject.Instantiate(gmanPrefab, solanum.transform);
+            gman.transform.localPosition = Vector3.zero;
+            gman.transform.localScale = Vector3.one * 0.030f;
+            gman.name = "Gman";
+            gman.AddComponent<GmanController>();
+
+            solanum.transform.Find("Nomai_Mesh:Mesh").gameObject.SetActive(false);
+
+            //Get rid of the "black eyes fix" quads
+            foreach(Transform child in Utility.SearchInChildren(solanum.transform, "Nomai_Rig_v01:Neck_TopSHJnt").transform)
+            {
+                child.gameObject.SetActive(false);
+            }
+
+            // Gets rid of the staff
+            Utility.SearchInChildren(solanum.transform, "Nomai_Rig_v01:LF_Arm_WristSHJnt").gameObject.SetActive(false);
+            gman.SetActive(true);
+        }
+
+        private static void OnStartConversation(SolanumAnimController __instance)
+        {
+            __instance.gameObject.GetComponentInChildren<GmanController>().TriggerAnim(GmanController.GmanState.Yes);
+        }
+
+        private static void OnEndConversation(SolanumAnimController __instance)
+        {
+            __instance.gameObject.GetComponentInChildren<GmanController>().TriggerAnim(GmanController.GmanState.No);
+        }
+
+        private static void OnGesture(SolanumAnimController __instance)
+        {
+            __instance.gameObject.GetComponentInChildren<GmanController>().TriggerAnim(GmanController.GmanState.Brush);
+        }
+
+        private static void OnRaiseCairns(SolanumAnimController __instance)
+        {
+            __instance.gameObject.GetComponentInChildren<GmanController>().TriggerAnim(GmanController.GmanState.LookDown);
+        }
+
+        private static void OnStopWatchingPlayer(SolanumAnimController __instance)
+        {
+            __instance.gameObject.GetComponentInChildren<GmanController>().TriggerAnim(GmanController.GmanState.LookAround);
+        }
+        #endregion Gman patches
+
+        #endregion patches
     }
 }

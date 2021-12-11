@@ -45,49 +45,25 @@ namespace HalfLifeOverhaul
             TypeExtensions.SetValue(titleAnimationController, "_optionsFadeSpacing", 0.001f);
 
             MeshPatcher.OnStart();
-
             SkeletonSwapper.OnStart();
 
+            PatchAudio(0, true);
             LoadManager.OnCompleteSceneLoad += PatchAudio;
             LoadManager.OnCompleteSceneLoad += PatchTextures;
         }
-
-        //private void Update()
-        //{
-        //    if (Input.GetMouseButtonDown(2))
-        //    {
-        //        Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out RaycastHit hitInfo);
-        //        foreach (var item in Physics.OverlapSphere(hitInfo.point, 50))
-        //        {
-        //            var meshRenderer = item.GetComponent<MeshRenderer>();
-        //            if (meshRenderer != null)
-        //            {
-        //                ModHelper.Console.WriteLine(meshRenderer.material.shader.ToString());
-        //            }
-        //        }
-        //    }
-        //}
 
         private void PatchTextures(OWScene originalScene, OWScene loadScene)
         {
 
 
-
+            #region Timber Hearth
             var mat = Resources.FindObjectsOfTypeAll<MeshRenderer>().First(x => x.name == "TH_Surface").material;
-            mat.shader = Shader.Find("Diffuse");
-            mat.SetTexture("_MainTex", LoadTexture("RichDirt.png"));//_MainTex
+            //mat.shader = Shader.Find("Diffuse");
+            mat.SetTexture("_MainTex", LoadTexture("THGrass.png"));//_MainTex
             mat.SetTexture("_Overlay1Tex", LoadTexture("RichDirt.png"));//Dirt
             mat.SetTexture("_Overlay2Tex", LoadTexture("THGrass.png"));//Grass
             mat.SetTexture("_Overlay3Leaves", LoadTexture("Cactus.png"));//_Overlay3Leaves
-            ModHelper.Console.WriteLine("First mat successful");
-
-            //var mat2 = Resources.FindObjectsOfTypeAll<MeshRenderer>().First(x => x.name == "TH_Surface").material;
-            //mat2.shader = Shader.Find("Diffuse");
-            //mat2.SetTexture("_MainTex", LoadTexture("RichDirt.png"));//_MainTex
-            //mat2.SetTexture("_Overlay1Tex", LoadTexture("RichDirt.png"));//Dirt
-            //mat2.SetTexture("_Overlay2Tex", LoadTexture("THGrass.png"));//Grass
-            //mat2.SetTexture("_Overlay3Leaves", LoadTexture("Cactus.png"));//_Overlay3Leaves
-            //ModHelper.Console.WriteLine("First mat successful");
+            #endregion
 
             #region EmberTwinPatch
 
@@ -204,14 +180,14 @@ namespace HalfLifeOverhaul
                     {
                         SetTextures(material, LoadTexture("Cactus.png"));
                     }
-                    if (material.ToString().ToLower().Contains("plank")||
+                    if (material.ToString().ToLower().Contains("plank") ||
                         material.ToString().ToLower().Contains("cabin"))
                     {
                         SetTextures(material, LoadTexture("Tree.png"));
                     }
                     if (material.ToString().ToLower().Contains("cliff") ||
-                          material.ToString().ToLower().Contains("rock")||
-                          material.ToString().ToLower().Contains("stone")||
+                          material.ToString().ToLower().Contains("rock") ||
+                          material.ToString().ToLower().Contains("stone") ||
                           material.ToString().ToLower().Contains("terrain_th_geyser"))
                     {
                         SetTextures(material, LoadTexture("MarbleClifface.png"));
@@ -231,14 +207,14 @@ namespace HalfLifeOverhaul
                     if (material.ToString().ToLower().Contains("snow"))
                     {
                         SetTextures(material, LoadTexture("Snow.png"));
-                    } 
+                    }
                     if (material.ToString().ToLower().Contains("hct_surface"))
                     {
                         //material.SetTexture("_MainTex", LoadTexture("HTrocks.png"));
                         //material.SetTexture("_SurfaceAlbedoTex", LoadTexture("AridGround.png"));
                     }
 
-                    if (material.ToString().ToLower().Contains("dirt") || material.ToString().ToLower().Contains("craterfloor"))
+                    if (material.ToString().ToLower().Contains("craterfloor"))
                     {
                         SetTextures(material, LoadTexture("THGrass.png"));
                         //material.gameObject.AddComponent<AnimatedWater>();
@@ -256,19 +232,12 @@ namespace HalfLifeOverhaul
                     item.gameObject.AddComponent<AnimatedWater>();
                 }
             }
-        }
 
-        //foreach (var item in Resources.FindObjectsOfTypeAll<Campfire>())
-        //{
-        //    item.GetComponent<MeshRenderer>().material.shader = Shader.Find("Legacy Shaders/Diffuse");
-        //    foreach (var collider in Physics.OverlapSphere(item.transform.position, 50))
-        //    {
-        //        var mR = collider.GetComponent<MeshRenderer>();
-        //        if (mR != null)
-        //        {
-        //            mR.material.shader = Shader.Find("Legacy Shaders/Diffuse");
-        //        }
-        //    }
+            foreach (var text in Resources.FindObjectsOfTypeAll<UnityEngine.UI.Text>())
+            {
+                text.color = Color.yellow;
+            }
+        }
 
         private void SetTextures(Material mat, Texture2D texture)
         {
@@ -311,13 +280,7 @@ namespace HalfLifeOverhaul
         }
         private void PatchAudio(OWScene originalScene, OWScene loadScene)
         {
-            if (Locator.GetAudioManager() == null)
-            {
-                ModHelper.Console.WriteLine("Can't find audio manager, retrying in 1 second");
-                Invoke("PatchAudio", 1f);
-                return;
-            }
-            ModHelper.Console.WriteLine("Patching audio");
+             StartCoroutine(PatchAudio(1, false));
         }
 
         private IEnumerator LogAllMeshRenderers()
@@ -329,20 +292,11 @@ namespace HalfLifeOverhaul
             }
         }
 
-        private void PatchAudio()
+        private IEnumerator PatchAudio(float delay, bool justLoadAudio)
         {
-            if (Locator.GetAudioManager() == null)
-            {
-                ModHelper.Console.WriteLine("Can't find audio manager, retrying in 1 second");
-                Invoke("PatchAudio", 1f);
-                return;
-            }
-            ModHelper.Console.WriteLine("Patching audio2");
-
-            var dictionary = ((Dictionary<int, AudioLibrary.AudioEntry>)AccessTools.Field(typeof(AudioManager), "_audioLibraryDict").GetValue(Locator.GetAudioManager()));
-
+            yield return new WaitForSecondsRealtime(delay);
             AudioType[] audioTypesToPatch =
-            {
+{
                 AudioType.MovementDirtFootstep,
                 AudioType.MovementMetalFootstep,
                 AudioType.MovementGlassFootsteps,
@@ -560,6 +514,17 @@ namespace HalfLifeOverhaul
                  new string[]{ "Half-Life13.mp3"},
                  new string[]{ "Half-Life17.mp3"},
             };
+
+            if (justLoadAudio)
+            {
+                for (int i = 0; i < audioFilesToUse.Length; i++)
+                {
+                    GetClips(audioFilesToUse[i]);
+                }
+                yield break;
+            }
+
+            var dictionary = ((Dictionary<int, AudioLibrary.AudioEntry>)AccessTools.Field(typeof(AudioManager), "_audioLibraryDict").GetValue(Locator.GetAudioManager()));
 
 
             for (int i = 0; i < audioFilesToUse.Length; i++)

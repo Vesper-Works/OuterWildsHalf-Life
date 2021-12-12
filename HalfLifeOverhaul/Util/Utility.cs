@@ -22,6 +22,14 @@ namespace HalfLifeOverhaul.Util
             return null;
         }
 
+        public static T SearchComponentInParents<T>(Transform start)
+        {
+            var component = start.GetComponentInChildren<T>(true);
+            if (component != null) return component;
+            if (start.parent != null) return SearchComponentInParents<T>(start.parent);
+            return default(T);
+        } 
+
         public static GameObject[] FindObjectsWithName(string name)
         {
             return Resources.FindObjectsOfTypeAll<GameObject>().Where(obj => obj.name.Equals(name)).ToArray();

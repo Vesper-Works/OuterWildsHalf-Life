@@ -6,6 +6,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using Logger = HalfLifeOverhaul.Util.Logger;
+using Random = UnityEngine.Random;
 
 namespace HalfLifeOverhaul
 {
@@ -24,8 +26,17 @@ namespace HalfLifeOverhaul
         public static GameObject barneyPrefab;
         public static GameObject suitGordonPrefeb;
         public static GameObject gordonPrefab;
+        public static GameObject[] vortigauntMummyPrefabs = new GameObject[11];
+        public static GameObject rpgPrefab;
+        public static GameObject satchelPrefab;
+        public static GameObject protozoaPrefab;
+        public static GameObject forkliftPrefab;
+        public static GameObject barnaclePrefab;
+        public static GameObject gusPrefab;
+        public static GameObject crowbarPrefab;
 
         private static Shader standardShader = Shader.Find("Standard");
+        private static Shader transparentShader = Shader.Find("Outer Wilds/Environment/Ship/Cockpit Glass");
 
         public static void OnStart()
         {
@@ -47,12 +58,17 @@ namespace HalfLifeOverhaul
             gordonPrefab = LoadPrefab(bundle, "Assets/Prefabs/gordon_nosuit.prefab");
             suitGordonPrefeb = LoadPrefab(bundle, "Assets/Prefabs/gordon_suit.prefab");
             gmanPrefab = LoadPrefab(bundle, "Assets/Prefabs/gman.prefab");
-
-            // TODO: Replace solanum with gman
-
-            // TODO: Replace owl mummies with vortigaunts
-
-            // TODO: Put headcrabs on the traveller's heads
+            for(int i = 0; i < vortigauntMummyPrefabs.Length; i++)
+            {
+                vortigauntMummyPrefabs[i] = LoadPrefab(bundle, $"Assets/Prefabs/vortiguant_mummy{i+1}.prefab");
+            }
+            rpgPrefab = LoadPrefab(bundle, "Assets/Prefabs/rpg.prefab");
+            satchelPrefab = LoadPrefab(bundle, "Assets/Prefabs/satchel.prefab");
+            protozoaPrefab = LoadPrefab(bundle, "Assets/Prefabs/protozoa.prefab", true);
+            forkliftPrefab = LoadPrefab(bundle, "Assets/Prefabs/forklift.prefab");
+            barnaclePrefab = LoadPrefab(bundle, "Assets/Prefabs/barnacle.prefab");
+            gusPrefab = LoadPrefab(bundle, "Assets/Prefabs/gus.prefab");
+            crowbarPrefab = LoadPrefab(bundle, "Assets/Prefabs/crowbar.prefab");
 
             MainBehaviour.instance.ModHelper.HarmonyHelper.AddPostfix<JellyfishController>("Awake", typeof(MeshPatcher), nameof(MeshPatcher.OnJellyFishControllerAwake));
 
@@ -72,26 +88,38 @@ namespace HalfLifeOverhaul
             MainBehaviour.instance.ModHelper.HarmonyHelper.AddPostfix<SolanumAnimController>("PlayRaiseCairns", typeof(MeshPatcher), nameof(MeshPatcher.OnRaiseCairns));
             MainBehaviour.instance.ModHelper.HarmonyHelper.AddPostfix<SolanumAnimController>("StopWatchingPlayer", typeof(MeshPatcher), nameof(MeshPatcher.OnStopWatchingPlayer));
 
+            MainBehaviour.instance.ModHelper.HarmonyHelper.AddPostfix<PlayerCharacterController>("Awake", typeof(MeshPatcher), nameof(MeshPatcher.OnPlayerCharacterControllerAwake));
+
             LoadManager.OnCompleteSceneLoad += MeshPatcher.PatchMeshes;
 
             _loaded = true;
         }
 
-        private static GameObject LoadPrefab(AssetBundle bundle, string path)
+        private static GameObject LoadPrefab(AssetBundle bundle, string path, bool isTransparent = false)
         {
-            var prefab = bundle.LoadAsset<GameObject>(path);
-
-            // Repair materials             
-            foreach(var skinnedMeshRenderer in prefab.GetComponentsInChildren<SkinnedMeshRenderer>())
+            GameObject prefab = null;
+            try
             {
-                foreach (var mat in skinnedMeshRenderer.materials)
+                prefab = bundle.LoadAsset<GameObject>(path);
+                
+                // Repair materials             
+                foreach (var skinnedMeshRenderer in prefab.GetComponentsInChildren<SkinnedMeshRenderer>())
                 {
-                    mat.shader = standardShader;
-                    mat.renderQueue = 2000;
+                    foreach (var mat in skinnedMeshRenderer.materials)
+                    {
+                        mat.shader = isTransparent? transparentShader : standardShader;
+                        //mat.renderQueue = 2000;
+                    }
                 }
+                
+
+                prefab.SetActive(false);
+            }
+            catch(Exception)
+            {
+                Logger.LogWarning($"Couldn't load {path}");
             }
 
-            prefab.SetActive(false);
 
             return prefab;
         }
@@ -102,10 +130,23 @@ namespace HalfLifeOverhaul
         {
             if (currentScene != OWScene.SolarSystem) return;
 
-            ReplaceJellyfish();
-            ReplaceAnglerfish();
-            ReplaceShip();
-            ReplaceTools();
+            try
+            {
+                ReplaceJellyfish();
+                ReplaceAnglerfish();
+                ReplaceShip();
+                ReplaceTools();
+                ReplaceMummies();
+                ReplaceProbes();
+                PlaceBarnacles();
+                PlaceProtozoa();
+                PlaceGus();
+                ReplaceAxe();
+            }
+            catch(Exception e)
+            {
+                Logger.LogError($"Couldn't finish patching meshes. {e.Message}, {e.StackTrace}");
+            }
         }
 
         private static void ReplaceJellyfish()
@@ -189,28 +230,267 @@ namespace HalfLifeOverhaul
             headcrab.transform.localRotation = Quaternion.AngleAxis(-35, Vector3.up);
             headcrab.SetActive(true);
 
+            /*
+            var satchel = GameObject.Instantiate(satchelPrefab, shelf.transform);
+            satchel.name = "Satchel";
+            satchel.transform.localPosition = new Vector3(0, 0, 0);
+            satchel.transform.localScale = Vector3.one * 0.022f;
+            satchel.transform.localRotation = Quaternion.AngleAxis(-35, Vector3.up);
+            satchel.SetActive(true);
+
+            var rpg = GameObject.Instantiate(rpgPrefab, shelf.transform);
+            rpg.name = "RPG";
+            rpg.transform.localPosition = new Vector3(0, 0, 0);
+            rpg.transform.localScale = Vector3.one * 0.022f;
+            rpg.transform.localRotation = Quaternion.AngleAxis(-35, Vector3.up);
+            rpg.SetActive(true);
+            */
             // TODO: Replace healing station with one from half life
 
-            // TODO: Replace probe and probe launcher on shelves with half life versions
         }
 
         private static void ReplaceTools()
         {
             // Tau cannon
-            var signalscope = GameObject.Find("Player_Body/PlayerCamera/Signalscope/Props_HEA_Signalscope");
             var signalscopePrepass = GameObject.Find("Player_Body/PlayerCamera/Signalscope/Props_HEA_Signalscope/Props_HEA_Signalscope_Prepass");
-            GameObject.Destroy(signalscope.GetComponent<MeshRenderer>());
             GameObject.Destroy(signalscopePrepass.GetComponent<MeshRenderer>());
-            var tauCannon = GameObject.Instantiate(tauCannonPrefab, signalscope.transform);
-            tauCannon.transform.localPosition = new Vector3(-0.14f, -0.15f, 0.15f);
-            tauCannon.transform.localScale = Vector3.one * 0.012f;
-            tauCannon.SetActive(true);
 
-            // TODO: Probe launcher to rocket launcher
+            string[] signalscopes = new string[]
+            {
+                "TimberHearth_Body/Sector_TH/Sector_Village/Sector_LowerVillage/Props_LowerVillage/OtherComponentsGroup/Architecture_LowerVillage/OtherComponentsGroup/Village_UnderLaunchTowerProps/LaunchTowerSequoiaProps/WorkBench2/Props_HEA_Signalscope (1)",
+                "TimberHearth_Body/Sector_TH/Sector_Village/Sector_LowerVillage/Props_LowerVillage/OtherComponentsGroup/Architecture_LowerVillage/OtherComponentsGroup/Village_UnderLaunchTowerProps/LaunchTowerSequoiaProps/WorkBench2/Props_HEA_Signalscope (2)",
+            };
+
+            foreach(var signalscopePath in signalscopes)
+            {
+                var signalscope = GameObject.Find(signalscopePath);
+                GameObject.Destroy(signalscope.GetComponent<MeshRenderer>());
+                foreach(var childMeshRenderer in signalscope.GetComponentsInChildren<MeshRenderer>())
+                {
+                    GameObject.Destroy(childMeshRenderer);
+                }
+                var tauCannon = GameObject.Instantiate(tauCannonPrefab, signalscope.transform);
+                tauCannon.transform.localPosition = new Vector3(-0.15f, -0.1f, 0.3f);
+                tauCannon.transform.localScale = Vector3.one * 0.012f;
+                tauCannon.SetActive(true);
+            }
+
+            var playerSignalscope = GameObject.Find("Player_Body/PlayerCamera/Signalscope/Props_HEA_Signalscope");
+            GameObject.Destroy(playerSignalscope.GetComponent<MeshRenderer>());
+            foreach (var childMeshRenderer in playerSignalscope.GetComponentsInChildren<MeshRenderer>())
+            {
+                GameObject.Destroy(childMeshRenderer);
+            }
+            var playerTauCannon = GameObject.Instantiate(tauCannonPrefab, playerSignalscope.transform);
+            playerTauCannon.transform.localPosition = new Vector3(-0.14f, -0.15f, 0.15f);
+            playerTauCannon.transform.localScale = Vector3.one * 0.012f;
+            playerTauCannon.SetActive(true);
+
+            /*
+            // Probe launcher to rocket launcher
+            string[] probeLaunchers = new string[]
+            {
+                "TimberHearth_Body/Sector_TH/Sector_Village/Interactables_Village/Interactables_ScoutTutorial/TutorialProbeLauncher_Base/VerticalPivot/Launcher/Props_HEA_ProbeLauncher/",
+                "TimberHearth_Body/Sector_TH/Sector_Village/Interactables_Village/TutorialCamera_Base/VerticalPivot/Launcher/Props_HEA_ProbeLauncher/",
+                "TimberHearth_Body/Sector_TH/Sector_Village/Sector_LowerVillage/Props_LowerVillage/OtherComponentsGroup/Architecture_LowerVillage/OtherComponentsGroup/Village_UnderLaunchTowerProps/LaunchTowerSequoiaProps/Props_HEA_ProbeLauncher (1)/",
+                "TimberHearth_Body/Sector_TH/Sector_Village/Sector_LowerVillage/Props_LowerVillage/OtherComponentsGroup/Architecture_LowerVillage/OtherComponentsGroup/Village_UnderLaunchTowerProps/LaunchTowerSequoiaProps/Props_HEA_ProbeLauncher (2)/",
+                "BrittleHollow_Body/Sector_BH/Sector_Crossroads/Props_Crossroads/OtherComponentsGroup/Reibeck_Camp/Props_HEA_ProbeLauncher/",
+                "TimberHearth_Body/Sector_TH/Sector_ZeroGCave/Props_ZeroGCave/OtherComponentsGroup/LowerCave/MinePlatForm_B/Props_HEA_ProbeLauncher/",
+                //"Ship_Body/Module_Supplies/Systems_Supplies/ExpeditionGear/EquipmentGeo/Props_HEA_ProbeLauncher/",
+                //"Player_Body/PlayerCamera/ProbeLauncher/Props_HEA_ProbeLauncher/",
+            };
+
+            foreach (var probeLauncherPath in probeLaunchers)
+            {
+                var probeLauncher = GameObject.Find(probeLauncherPath);
+                GameObject.Destroy(probeLauncher.GetComponent<MeshRenderer>());
+                foreach (var childMeshRenderer in probeLauncher.GetComponentsInChildren<MeshRenderer>())
+                {
+                    GameObject.Destroy(childMeshRenderer);
+                }
+                var rpg = GameObject.Instantiate(rpgPrefab, probeLauncher.transform);
+                rpg.transform.localPosition = new Vector3(-0.14f, -0.15f, 0.15f);
+                rpg.transform.localScale = Vector3.one * 0.012f;
+                rpg.SetActive(true);
+            }
+            */
+
+            // Player probe launcher
+            var playerProbeLauncher = GameObject.Find("Player_Body/PlayerCamera/ProbeLauncher/Props_HEA_ProbeLauncher/");
+            GameObject.Destroy(playerProbeLauncher.GetComponent<MeshRenderer>());
+            foreach (var childMeshRenderer in playerProbeLauncher.GetComponentsInChildren<MeshRenderer>())
+            {
+                GameObject.Destroy(childMeshRenderer);
+            }
+            var playerRPG = GameObject.Instantiate(rpgPrefab, playerProbeLauncher.transform);
+            playerRPG.transform.localPosition = new Vector3(-0.8f, -0.2f, 0.9f);
+            playerRPG.transform.localScale = Vector3.one * 0.05f;
+            playerRPG.transform.localRotation = Quaternion.Euler(270, 0, 0);
+            playerRPG.SetActive(true);
+
+            var probeLauncherPrepass = GameObject.Find("Player_Body/PlayerCamera/Signalscope/Props_HEA_Signalscope/Props_HEA_Signalscope_Prepass");
+            GameObject.Destroy(probeLauncherPrepass.GetComponent<MeshRenderer>());
+
+            // Ship probe launcher prop
+            var shipProbeLauncher = GameObject.Find("Ship_Body/Module_Supplies/Systems_Supplies/ExpeditionGear/EquipmentGeo/Props_HEA_ProbeLauncher/");
+            GameObject.Destroy(shipProbeLauncher.GetComponent<MeshRenderer>());
+            foreach (var childMeshRenderer in shipProbeLauncher.GetComponentsInChildren<MeshRenderer>())
+            {
+                GameObject.Destroy(childMeshRenderer);
+            }
+            var shipRPG = GameObject.Instantiate(rpgPrefab, shipProbeLauncher.transform);
+            shipRPG.transform.localPosition = new Vector3(0.66f, -0.12f, -1.5f);
+            shipRPG.transform.localScale = Vector3.one * 0.045f;
+            shipRPG.transform.localRotation = Quaternion.Euler(318.9286f, 267.8683f, 267.8439f);
+            shipRPG.SetActive(true);
 
             // TODO: Translator to... something
 
             // TODO: Replace props in the word that have these models
+
+            /*
+            // Hide in world objects
+            GameObject.Find("TimberHearth_Body/Sector_TH/Sector_Village/Sector_LowerVillage/Props_LowerVillage/OtherComponentsGroup/Architecture_LowerVillage/BatchedGroup/BatchedMeshRenderers_11").SetActive(false);
+            GameObject.Find("TimberHearth_Body/Sector_TH/Sector_Village/Sector_LowerVillage/Props_LowerVillage/OtherComponentsGroup/Architecture_LowerVillage/BatchedGroup/BatchedMeshRenderers_12").SetActive(false);
+            GameObject.Find("TimberHearth_Body/Sector_TH/Sector_Village/Sector_LowerVillage/Props_LowerVillage/OtherComponentsGroup/Architecture_LowerVillage/BatchedGroup/BatchedMeshRenderers_9").SetActive(false);
+           
+
+            // Put HEV suit
+            var suit = GameObject.Instantiate(hevPrefab, GameObject.Find("TimberHearth_Body").transform);
+            suit.transform.localScale = Vector3.one * 0.05f;
+            suit.transform.localPosition = new Vector3(-12.0f, -49.6f, 181.4f);
+            suit.transform.localRotation = Quaternion.FromToRotation(suit.transform.TransformDirection(Vector3.down), -suit.transform.localPosition.normalized);
+            suit.transform.Rotate(new Vector3(0, 180, 0));
+            //suit.transform.LookAt(forklift.transform.parent.TransformDirection(Vector3.forward), suit.transform.localPosition.normalized);
+            suit.SetActive(true);
+            */
+        }
+
+        private static void ReplaceProbes()
+        {
+            // TODO
+            var shipSupplyProbe = GameObject.Find("Ship_Body/Module_Supplies/Systems_Supplies/ExpeditionGear/EquipmentGeo/Props_HEA_Probe_STATIC/");
+            GameObject.Destroy(shipSupplyProbe.GetComponentInChildren<MeshRenderer>());
+            var shipSatchel = GameObject.Instantiate(satchelPrefab, shipSupplyProbe.transform);
+            shipSatchel.transform.localPosition = new Vector3(0.7f, 1.05f, 0.78f);
+            shipSatchel.transform.localScale = Vector3.one * 0.045f;
+            shipSatchel.transform.localRotation = Quaternion.Euler(337.1081f, 275.5102f, 155.7031f);
+            shipSatchel.SetActive(true);
+
+            // Player probe
+            var playerProbe = GameObject.Find("Probe_Body/CameraPivot/Geometry/Props_HEA_Probe_ANIM/Props_HEA_Probe/");
+            playerProbe.SetActive(false);
+            var playerSatchel = GameObject.Instantiate(satchelPrefab, playerProbe.transform.parent);
+            playerSatchel.transform.localPosition = new Vector3(1.35f, 0.8f, -0.25f);
+            playerSatchel.transform.localScale = Vector3.one * 0.045f;
+            playerSatchel.transform.localRotation = Quaternion.Euler(340.6183f, 347.8522f, 136.6455f);
+            playerSatchel.SetActive(true);
+        }
+
+        private static void ReplaceMummies()
+        {
+            var mummyCircle1 = "RingWorld_Body/Sector_RingInterior/Sector_Zone1/Sector_DreamFireHouse_Zone1/Interactables_DreamFireHouse_Zone1/DreamFireChamber/MummyCircle";
+            ReplaceMummyCircle(GameObject.Find(mummyCircle1));
+
+            var mummyCircle2 = "RingWorld_Body/Sector_RingInterior/Sector_Zone2/Sector_DreamFireLighthouse_Zone2_AnimRoot/Interactibles_DreamFireLighthouse_Zone2/DreamFireChamber/MummyCircle";
+            ReplaceMummyCircle(GameObject.Find(mummyCircle2));
+
+            var mummyCircle3 = "RingWorld_Body/Sector_RingInterior/Sector_Zone3/Sector_HiddenGorge/Sector_DreamFireHouse_Zone3/Interactables_DreamFireHouse_Zone3/DreamFireChamber_DFH_Zone3/MummyCircle";
+            ReplaceMummyCircle(GameObject.Find(mummyCircle3));
+        }
+
+        private static void ReplaceMummyCircle(GameObject mummyCircle)
+        {
+            var permutation = vortigauntMummyPrefabs.OrderBy(x => (int)Random.Range(0, vortigauntMummyPrefabs.Length)).ToArray();
+
+            int index = 0;
+            foreach (Transform child in mummyCircle.transform)
+            {
+                var mummy = child.Find("Prefab_IP_SleepingMummy_v2")?.Find("Mummy_IP_Anim");
+                if(mummy != null)
+                {
+                    GameObject vortigauntMummy = GameObject.Instantiate(permutation[index++ % permutation.Length], mummy.parent);
+                    vortigauntMummy.transform.localScale = Vector3.one * 0.05f;
+                    vortigauntMummy.transform.localPosition = new Vector3(0f, 0f, 0.4f);
+                    vortigauntMummy.transform.localRotation = Quaternion.Euler(350, 0, 0);
+                    vortigauntMummy.SetActive(true);
+                    mummy.gameObject.SetActive(false);
+                }
+            }
+        }
+
+        private static void PlaceBarnacles()
+        {
+            PlaceBarnacle(-104.8f, -49.5f, 77.5f);
+            PlaceBarnacle(-106.6f, -26.2f, 84.2f);
+            PlaceBarnacle(-83.8f, 64.2f, 95.5f);
+            PlaceBarnacle(-92.4f, 77.9f, 103.6f);
+            PlaceBarnacle(-80.2f, 111.8f, 83.0f);
+            PlaceBarnacle(-78.5f, -135.3f, -36.8f);
+            PlaceBarnacle(-89.2f, 108.7f, 77.5f);
+            PlaceBarnacle(-87.7f, 102.6f, 86.7f);
+            PlaceBarnacle(103.5f, 83.6f, -26.8f);
+            PlaceBarnacle(24.7f, -89.9f, -83.2f);
+            PlaceBarnacle(22.2f, -121.7f, -74.5f);
+            PlaceBarnacle(6.7f, -142.0f, -11.7f);
+            PlaceBarnacle(14.5f, -125.7f, 41.9f);
+            PlaceBarnacle(40.7f, -137.2f, -10.8f);
+        }
+
+        private static void PlaceBarnacle(float x, float y, float z)
+        {
+            var barnacle = GameObject.Instantiate(barnaclePrefab, GameObject.Find("CaveTwin_Body").transform);
+            barnacle.transform.localScale = Vector3.one * 0.03f;
+            barnacle.transform.localPosition = new Vector3(x, y, z);
+            barnacle.transform.localRotation = Quaternion.FromToRotation(barnacle.transform.TransformDirection(Vector3.down), -barnacle.transform.localPosition.normalized);
+            
+            barnacle.SetActive(true);
+        }
+
+        private static void PlaceProtozoa()
+        {
+            // Inside
+            for (int i = 0; i < 8; i++)
+            {
+                PlaceProtozoan(Random.Range(0, 360), Random.Range(-90, 90), Random.Range(160, 180));
+            }
+            // Outside
+            for (int i = 0; i < 16; i++)
+            {
+                PlaceProtozoan(Random.Range(0, 360), Random.Range(-90, 90), Random.Range(310, 340));
+            }
+        }
+
+        private static void PlaceProtozoan(float longitude, float latitude, float r)
+        {
+            var protozoan = GameObject.Instantiate(protozoaPrefab);
+            protozoan.transform.localScale = Vector3.one * 0.04f;
+            protozoan.GetComponent<Animator>().speed = Random.Range(0.4f, 0.6f);
+            var controller = protozoan.AddComponent<ProtozoanController>();
+            controller.PlaceAt(GameObject.Find("BrittleHollow_Body").transform, r, longitude, latitude);
+            protozoan.SetActive(true);
+        }
+
+        private static void PlaceGus()
+        {
+            var forklift = GameObject.Instantiate(forkliftPrefab, GameObject.Find("TimberHearth_Body").transform);
+            forklift.transform.localScale = Vector3.one * 0.03f;
+            forklift.transform.localPosition = new Vector3(-6.1f, -45.0f, 181.5f);
+            forklift.transform.localRotation = Quaternion.FromToRotation(forklift.transform.TransformDirection(Vector3.down), -forklift.transform.localPosition.normalized);
+            forklift.transform.Rotate(new Vector3(0, 180, 0));
+            forklift.SetActive(true);
+        }
+
+        private static void ReplaceAxe()
+        {
+            var wrist = GameObject.Find("TimberHearth_Body/Sector_TH/Sector_Village/Sector_LowerVillage/Characters_LowerVillage/Villager_HEA_Marl/Villager_HEA_Marl_ANIM_StareDwn/Marl_Skin_01:tall_rig_b_v01:TrajectorySHJnt/Marl_Skin_01:tall_rig_b_v01:ROOTSHJnt/Marl_Skin_01:tall_rig_b_v01:Spine_01SHJnt/Marl_Skin_01:tall_rig_b_v01:Spine_02SHJnt/Marl_Skin_01:tall_rig_b_v01:Spine_TopSHJnt/Marl_Skin_01:tall_rig_b_v01:RT_Arm_ClavicleSHJnt/Marl_Skin_01:tall_rig_b_v01:RT_Arm_ShoulderSHJnt/Marl_Skin_01:tall_rig_b_v01:RT_Arm_ElbowSHJnt/Marl_Skin_01:tall_rig_b_v01:RT_Arm_WristSHJnt/");
+            wrist.transform.Find("Props_HEA_Hatchet").gameObject.SetActive(false);
+
+            var crowbar = GameObject.Instantiate(crowbarPrefab, wrist.transform);
+            crowbar.transform.localScale = Vector3.one * 0.04f;
+            crowbar.transform.localPosition = new Vector3(0.1f, -0.5f, -0.6f);
+            crowbar.transform.localRotation = Quaternion.Euler(290, 150, 180);
+            crowbar.SetActive(true);
         }
 
         #endregion PatchMeshes
@@ -348,6 +628,11 @@ namespace HalfLifeOverhaul
             __instance.gameObject.GetComponentInChildren<GmanController>().TriggerAnim(GmanController.GmanState.LookAround);
         }
         #endregion Gman patches
+
+        private static void OnPlayerCharacterControllerAwake(PlayerCharacterController __instance)
+        {
+            //__instance.gameObject.AddComponent<ObjectSpawner>();
+        }
 
         #endregion patches
     }

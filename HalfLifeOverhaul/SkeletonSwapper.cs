@@ -16,6 +16,7 @@ namespace HalfLifeOverhaul
     public static class SkeletonSwapper
     {
         private static bool _loaded = false;
+
         public static void OnStart()
         {
             if (_loaded) return;
@@ -27,14 +28,15 @@ namespace HalfLifeOverhaul
 
         public static void SwapSkeletons(OWScene _, OWScene currentScene)
         {
-            if (currentScene == OWScene.SolarSystem)
-            { 
+            if (currentScene != OWScene.SolarSystem) return;
+            try
+            {
                 ReplaceHearthians();
                 ReplacePlayer();
             }
-            if(currentScene == OWScene.EyeOfTheUniverse)
+            catch(Exception e)
             {
-                //ReplacePlayer();
+                Logger.LogError($"Couldn't finish swapping skeletons. {e.Message}, {e.StackTrace}");
             }
         }
 
@@ -139,32 +141,24 @@ namespace HalfLifeOverhaul
             var riebeck = "BrittleHollow_Body/Sector_BH/Sector_Crossroads/Characters_Crossroads/Traveller_HEA_Riebeck/Traveller_HEA_Riebeck_ANIM_Talking";
             var riebeckPrefix = "Riebeck_Rig2:";
             SwapSkeleton(riebeck, riebeckPrefix, "", MeshPatcher.suitGordonPrefeb, riebeckBoneScale, riebeckBoneMap, riebeckBoneOffsets, riebeckBoneRotation, false);
-            
-            // Gneiss' banjo mesh is unloaded when you leave Timber Hearth so this doesn't work.
+
             /*
             // Replace riebeck's banjo
+            var gneissBanjo = GameObject.Find("TimberHearth_Body/Sector_TH/Sector_Village/Sector_LowerVillage/Characters_LowerVillage/Villager_HEA_Gneiss/Villager_HEA_Gneiss_ANIM_Tuning/Gneiss:Rig:Trajectory_Jnt/Gneiss:Rig:ROOT_Jnt/Gneiss:Rig:Spine_01_Jnt/Gneiss:Rig:Spine_02_Jnt/Gneiss:Rig:Spine_Top_Jnt/Props_HEA_Banjo");
+
             var banjoRoot = "BrittleHollow_Body/Sector_BH/Sector_Crossroads/Characters_Crossroads/Traveller_HEA_Riebeck/Traveller_HEA_Riebeck_ANIM_Talking/Riebeck_Rig2:jt_MAINSHJ/Riebeck_Rig2:jt_ZERO/Riebeck_Rig2:jt_ROOTSHJ/Riebeck_Rig2:jt_Spine_01SHJ/Riebeck_Rig2:jt_banjoSHJ/";
             GameObject.Find(banjoRoot + "Traveller_HEA_Riebeck_BanjoStrings (1)").SetActive(false);
             
-            var gneissBanjo = GameObject.Find("TimberHearth_Body/Sector_TH/Sector_Village/Sector_LowerVillage/Characters_LowerVillage/Villager_HEA_Gneiss/Villager_HEA_Gneiss_ANIM_Tuning/Gneiss:Rig:Trajectory_Jnt/Gneiss:Rig:ROOT_Jnt/Gneiss:Rig:Spine_01_Jnt/Gneiss:Rig:Spine_02_Jnt/Gneiss:Rig:Spine_Top_Jnt/Props_HEA_Banjo");
-
-            //MakeBanjo(GameObject.Find("Player_Body").transform);
-
             var newBanjo = GameObject.Instantiate(gneissBanjo, GameObject.Find("Player_Body").transform);
-            var streamingRenderMeshHandle = gneissBanjo.GetComponent<StreamingRenderMeshHandle>();
-            streamingRenderMeshHandle.proxyMesh = gneissBanjo.GetComponent<MeshFilter>().sharedMesh;
-
-            GameObject.Destroy(newBanjo.GetComponent<StreamingRenderMeshHandle>());
-            GameObject.Destroy(gneissBanjo.GetComponent<StreamingRenderMeshHandle>());
+            StreamingManager.RegisterStreamingMeshHandle(newBanjo.GetComponent<StreamingRenderMeshHandle>());
+            newBanjo.transform.DestroyAllChildren();
 
             newBanjo.transform.localPosition = Vector3.zero;
-            //newBanjo.GetComponent<MeshFilter>().mesh = GameObject.Instantiate(newBanjo.GetComponent<MeshFilter>().mesh);
-            //newBanjo.GetComponent<MeshFilter>().sharedMesh = GameObject.Instantiate(newBanjo.GetComponent<MeshFilter>().sharedMesh);
             newBanjo.SetActive(true);
             */
         }
 
-        public static void ReplacePlayer()
+        private static void ReplacePlayer()
         {
             var player = "player_mesh_noSuit:Traveller_HEA_Player";
             var playerSuit = "Traveller_Mesh_v01:Traveller_Geo";
@@ -310,8 +304,8 @@ namespace HalfLifeOverhaul
             if (name.EndsWith("L Foot")) offset = new Vector3(0.03f, 0, 0.03f);
             else if (name.EndsWith("R Foot")) offset = new Vector3(-0.03f, 0, -0.03f);
             else if (name.EndsWith("Head")) offset = new Vector3(0.05f, 0.033f, 0f);
-            else if (name.EndsWith("L Arm")) offset = new Vector3(0, 0.03f, -0.03f);
-            else if (name.EndsWith("R Arm")) offset = new Vector3(0, -0.03f, 0.03f);
+            else if (name.Equals("Bip02 L Arm")) offset = new Vector3(0, 0.03f, -0.03f);
+            else if (name.Equals("Bip02 R Arm")) offset = new Vector3(0, -0.03f, 0.03f);
             else offset = Vector3.zero;
             return offset;
         }
@@ -325,9 +319,22 @@ namespace HalfLifeOverhaul
             else if (name.Contains("L Leg")) localRotation = Quaternion.Euler(90, 0, 0);
             else if (name.Contains("R Leg")) localRotation = Quaternion.Euler(90, 180, 0);
             else if (name.Contains(" L ")) localRotation = Quaternion.Euler(270, 0, 0);
+            else if (name.Contains(" R Hand")) localRotation = Quaternion.Euler(0, 180, 0);
             else if (name.Contains(" R ")) localRotation = Quaternion.Euler(270, 180, 0);
             else localRotation = Quaternion.Euler(new Vector3(180f, 0f, 0f));
             return localRotation;
+        }
+
+        private static Vector3 gusBoneOffsets(string name)
+        {
+            if(name.Contains("Neck")) return new Vector3(0.1f / 3.5f, 0, 0);
+            else return hearthianBoneOffsets(name);
+        }
+
+        private static Quaternion gusBoneRotations(string name)
+        {
+            if (name.Contains("Neck") || name.Contains("Head")) return Quaternion.Euler(0, 180, 140);
+            else return hearthianBoneRotation(name);
         }
 
         private static Vector3 playerBoneOffsets(string name)

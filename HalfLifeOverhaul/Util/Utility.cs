@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace HalfLifeOverhaul.Util
 {
@@ -39,6 +40,18 @@ namespace HalfLifeOverhaul.Util
         {
             if (t.parent == null) return t.name;
             return GetPath(t.parent) + "/" + t.name;
+        }
+
+        public static void Shuffle<T>(T[] array)
+        {
+            int n = array.Length;
+            while (n > 1)
+            {
+                int k = (int)Random.Range(0, n--);
+                T temp = array[n];
+                array[n] = array[k];
+                array[k] = temp;
+            }
         }
     }
 }

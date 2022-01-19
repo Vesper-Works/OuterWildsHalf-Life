@@ -1,7 +1,6 @@
 ﻿using HarmonyLib;
 using OWML.ModHelper;
 using OWML.Utils;
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -29,10 +28,11 @@ namespace HalfLifeOverhaul
         public Dictionary<string, Texture2D> Textures = new Dictionary<string, Texture2D>();
         public Dictionary<string, AudioClip> Sounds = new Dictionary<string, AudioClip>();
         public static MainBehaviour instance { get; set; }
+
         private void Start()
         {
             instance = this;
-            TitleScreenAnimation titleScreenAnimation = UnityEngine.Object.FindObjectOfType<TitleScreenAnimation>();
+            TitleScreenAnimation titleScreenAnimation = FindObjectOfType<TitleScreenAnimation>();
             TypeExtensions.SetValue(titleScreenAnimation, "_fadeDuration", 0);
             TypeExtensions.SetValue(titleScreenAnimation, "_gamepadSplash", false);
             TypeExtensions.SetValue(titleScreenAnimation, "_introPan", false);
@@ -55,10 +55,12 @@ namespace HalfLifeOverhaul
         private void PatchTextures(OWScene originalScene, OWScene loadScene)
         {
 
-
+            //All specifics should go here, regioned by their astral body
             #region Timber Hearth
             var mat = Resources.FindObjectsOfTypeAll<MeshRenderer>().First(x => x.name == "TH_Surface").material;
-            //mat.shader = Shader.Find("Diffuse");
+            mat.shader = Shader.Find("Standard");
+            mat.SetFloat("_Glossiness", 0);
+            mat.SetFloat("_Metallic", 0);
             mat.SetTexture("_MainTex", LoadTexture("THGrass.png"));//_MainTex
             mat.SetTexture("_Overlay1Tex", LoadTexture("RichDirt.png"));//Dirt
             mat.SetTexture("_Overlay2Tex", LoadTexture("THGrass.png"));//Grass
@@ -73,30 +75,20 @@ namespace HalfLifeOverhaul
             foreach (var mesh in emberTwinSurfaceGeometry.GetComponentsInChildren<MeshRenderer>())
             {
                 var material = mesh.material;
+                material.SetFloat("_Glossiness", 0);
+                material.SetFloat("_Metallic", 0.5f);
                 material.SetTexture("_MainTex", LoadTexture("HTrocks.png"));//_MainTex
                 material.SetTexture("_BumpMap", LoadTexture("HTrocks.png"));//_BumpMap
-                material.SetTexture("_Overlay1Tex", LoadTexture("HTrocks.png"));//_Overlay1Tex
-                material.SetTexture("_Overlay1Bump", LoadTexture("HTrocks.png"));//_Overlay1Bump
-                material.SetTexture("_Overlay2Tex", LoadTexture("HTrocks.png"));//_Overlay2Tex
-                material.SetTexture("_Overlay2Bump", LoadTexture("HTrocks.png"));//_Overlay2Bump
-                material.SetTexture("_Overlay2DetailAlbedo", LoadTexture("HTrocks.png"));//_Overlay2DetailAlbedo
-                material.SetTexture("_Overlay3Leaves", LoadTexture("HTrocks.png"));//_Overlay3Leaves
-                material.SetTexture("_Overlay3Bump", LoadTexture("HTrocks.png"));//_Overlay3Bump
                 material.SetTexture("_SurfaceAlbedoTex", LoadTexture("AridGround.png"));
             }
 
             foreach (var mesh in emberTwinUndergroundGeometry.GetComponentsInChildren<MeshRenderer>())
             {
                 var material = mesh.material;
+                material.SetFloat("_Glossiness", 0);
+                material.SetFloat("_Metallic", 0.5f);
                 material.SetTexture("_MainTex", LoadTexture("HTrocks.png"));//_MainTex
-                material.SetTexture("_BumpMap", LoadTexture("HTrocks.png"));//_BumpMap
-                material.SetTexture("_Overlay1Tex", LoadTexture("HTrocks.png"));//_Overlay1Tex
-                material.SetTexture("_Overlay1Bump", LoadTexture("HTrocks.png"));//_Overlay1Bump
-                material.SetTexture("_Overlay2Tex", LoadTexture("HTrocks.png"));//_Overlay2Tex
-                material.SetTexture("_Overlay2Bump", LoadTexture("HTrocks.png"));//_Overlay2Bump
-                material.SetTexture("_Overlay2DetailAlbedo", LoadTexture("HTrocks.png"));//_Overlay2DetailAlbedo
-                material.SetTexture("_Overlay3Leaves", LoadTexture("HTrocks.png"));//_Overlay3Leaves
-                material.SetTexture("_Overlay3Bump", LoadTexture("HTrocks.png"));//_Overlay3Bump
+                material.SetTexture("_BumpMap", LoadTexture("AridGround.png"));//_BumpMap
                 material.SetTexture("_SurfaceAlbedoTex", LoadTexture("AridGround.png"));
             }
 
@@ -104,6 +96,8 @@ namespace HalfLifeOverhaul
 
             Shader shader = temp.sharedMaterials[0].shader;
 
+            temp.sharedMaterials[0].SetFloat("_Glossiness", 0);
+            temp.sharedMaterials[0].SetFloat("_Metallic", 0.5f);
             for (int i = 0; i < shader.GetPropertyCount(); i++)
             {
                 if (shader.GetPropertyType(i) == UnityEngine.Rendering.ShaderPropertyType.Texture)
@@ -113,6 +107,9 @@ namespace HalfLifeOverhaul
             }
 
             shader = temp.sharedMaterials[1].shader;
+
+            temp.sharedMaterials[1].SetFloat("_Glossiness", 0);
+            temp.sharedMaterials[1].SetFloat("_Metallic", 0.5f);
 
             for (int i = 0; i < shader.GetPropertyCount(); i++)
             {
@@ -130,6 +127,8 @@ namespace HalfLifeOverhaul
 
             shader = temp.sharedMaterials[0].shader;
 
+            temp.sharedMaterials[0].SetFloat("_Glossiness", 0);
+            temp.sharedMaterials[0].SetFloat("_Metallic", 0);
             for (int i = 0; i < shader.GetPropertyCount(); i++)
             {
                 if (shader.GetPropertyType(i) == UnityEngine.Rendering.ShaderPropertyType.Texture)
@@ -140,6 +139,8 @@ namespace HalfLifeOverhaul
 
             shader = temp.sharedMaterials[1].shader;
 
+            temp.sharedMaterials[1].SetFloat("_Glossiness", 0);
+            temp.sharedMaterials[1].SetFloat("_Metallic", 0);
             for (int i = 0; i < shader.GetPropertyCount(); i++)
             {
                 if (shader.GetPropertyType(i) == UnityEngine.Rendering.ShaderPropertyType.Texture)
@@ -153,15 +154,9 @@ namespace HalfLifeOverhaul
 
             #endregion
 
-            //var ringRenderer = GameObject.Find("RingWorld_Body/Sector_RingInterior/Volumes_RingInterior/RingRiverFluidVolume/RingworldRiver").GetComponent<TessellatedRingRenderer>();
-            //ringRenderer.sharedMaterial.shader = Shader.Find("Diffuse");
-            //ringRenderer.sharedMaterial.mainTexture = LoadTexture("Water2.png");
-
-
-            //Locator.GetSunTransform().gameObject.GetComponent<MeshRenderer>().material.color = Color.green;
-
-            foreach (var material in Resources.FindObjectsOfTypeAll<Material>())
+            foreach (var material in Resources.FindObjectsOfTypeAll<Material>()) //Kind of cursed, but go through each material in the project, replacing their textures.
             {
+
                 if (material.mainTexture != null)
                 {
                     if (material.ToString().ToLower().Contains("trunk") ||
@@ -222,7 +217,7 @@ namespace HalfLifeOverhaul
                 }
             }
 
-            foreach (var item in Resources.FindObjectsOfTypeAll<MeshRenderer>())
+            foreach (var item in Resources.FindObjectsOfTypeAll<MeshRenderer>()) //This targets specifically water so I can add the animation to it.
             {
                 if (item.ToString().ToLower().Contains("water") ||
             item.ToString().ToLower().Contains("ocean") ||
@@ -233,7 +228,7 @@ namespace HalfLifeOverhaul
                 }
             }
 
-            foreach (var text in Resources.FindObjectsOfTypeAll<UnityEngine.UI.Text>())
+            foreach (var text in Resources.FindObjectsOfTypeAll<UnityEngine.UI.Text>()) //Make all UI text yellow
             {
                 text.color = Color.yellow;
             }
@@ -242,21 +237,17 @@ namespace HalfLifeOverhaul
         private void SetTextures(Material mat, Texture2D texture)
         {
             mat.color = Color.white;
-            mat.shader = Shader.Find("Diffuse");
-            try { mat.SetTexture("_MainTex", texture); }
-            catch (Exception) { }
-            try { mat.SetTexture("_Overlay1Tex", texture); }
-            catch (Exception) { }
-            try { mat.SetTexture("_Overlay2Tex", texture); }
-            catch (Exception) { }
-            try { mat.SetTexture("_Overlay3Leaves", texture); }
-            catch (Exception) { }
+            mat.shader = Shader.Find("Standard");
+            mat.SetFloat("_Glossiness", 0);
+            mat.SetFloat("_Metallic", 0.5f);
+            mat.SetTexture("_MainTex", texture);
+
         }
         public static Texture2D LoadTexture(string path)
         {
-            if (instance.Textures.ContainsKey(path)) { return instance.Textures[path]; }
+            if (instance.Textures.ContainsKey(path)) { return instance.Textures[path]; } //Texture already loaded, get from memory
 
-
+            //Else, load the image from file
             Texture2D texture = null;
 
             byte[] imageBytes;
@@ -280,21 +271,15 @@ namespace HalfLifeOverhaul
         }
         private void PatchAudio(OWScene originalScene, OWScene loadScene)
         {
-             StartCoroutine(PatchAudio(1, false));
+            StartCoroutine(PatchAudio(1, false)); //Have to load audio with delay for some reason
         }
-
-        private IEnumerator LogAllMeshRenderers()
-        {
-            foreach (var item in Resources.FindObjectsOfTypeAll<MeshRenderer>())
-            {
-                ModHelper.Console.WriteLine(item.ToString());
-                yield return new WaitForEndOfFrame();
-            }
-        }
-
         private IEnumerator PatchAudio(float delay, bool justLoadAudio)
         {
             yield return new WaitForSecondsRealtime(delay);
+
+            //In OuterWilds, everything that makes a sound is an AudioType
+
+            //This array is all the audio types that we're going to change
             AudioType[] audioTypesToPatch =
 {
                 AudioType.MovementDirtFootstep,
@@ -406,6 +391,7 @@ namespace HalfLifeOverhaul
 
             };
 
+            //All the names of the files we're gonna use, the indexes MUST match. Use multiple files for variation (I think)
             string[][] audioFilesToUse =
             {
                  new string[]{ "pl_dirt1.wav", "pl_dirt2.wav","pl_dirt3.wav","pl_dirt4.wav" },
@@ -515,6 +501,8 @@ namespace HalfLifeOverhaul
                  new string[]{ "Half-Life17.mp3"},
             };
 
+
+
             if (justLoadAudio)
             {
                 for (int i = 0; i < audioFilesToUse.Length; i++)
@@ -524,24 +512,20 @@ namespace HalfLifeOverhaul
                 yield break;
             }
 
-            var dictionary = ((Dictionary<int, AudioLibrary.AudioEntry>)AccessTools.Field(typeof(AudioManager), "_audioLibraryDict").GetValue(Locator.GetAudioManager()));
-
+            //The audio dictionary is a dictionary containing all of the sounds, matched to the int value of the AudioType enum
+            Dictionary<int, AudioLibrary.AudioEntry> audioDictionary = ((Dictionary<int, AudioLibrary.AudioEntry>)AccessTools.Field(typeof(AudioManager), "_audioLibraryDict").GetValue(Locator.GetAudioManager()));
 
             for (int i = 0; i < audioFilesToUse.Length; i++)
             {
-
                 try
                 {
-                    dictionary[(int)audioTypesToPatch[i]] = new AudioLibrary.AudioEntry(audioTypesToPatch[i], GetClips(audioFilesToUse[i]), 0.5f);
+                    audioDictionary[(int)audioTypesToPatch[i]] = new AudioLibrary.AudioEntry(audioTypesToPatch[i], GetClips(audioFilesToUse[i]), 0.5f);
                 }
                 catch
                 {
-                    dictionary.Add((int)audioTypesToPatch[i], new AudioLibrary.AudioEntry(audioTypesToPatch[i], GetClips(audioFilesToUse[i]), 0.5f));
+                    audioDictionary.Add((int)audioTypesToPatch[i], new AudioLibrary.AudioEntry(audioTypesToPatch[i], GetClips(audioFilesToUse[i]), 0.5f));
                 }
-
             }
-
-
         }
         private AudioClip[] GetClips(string[] names)
         {
@@ -554,8 +538,8 @@ namespace HalfLifeOverhaul
         }
         private AudioClip GetClip(string name)
         {
-            if (instance.Sounds.ContainsKey(name)) { return instance.Sounds[name]; }
-            AudioClip audioClip = ModHelper.Assets.GetAudio(name);
+            if (instance.Sounds.ContainsKey(name)) { return instance.Sounds[name]; } //If it's already loaded, give the one in memory
+            AudioClip audioClip = ModHelper.Assets.GetAudio(name); //Else load it
             instance.Sounds.Add(name, audioClip);
             return audioClip;
         }
